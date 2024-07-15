@@ -191,15 +191,15 @@ var if_warmup = 1;
         console.log("Step_getdata");
         
       if (if_warmup==1) {
-            Instruct = false
+            Instruct = true 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 1; // cant be more then 365
+            NumTrials = 10; // cant be more then 365
           ////////////////////////////////////////////////////////////////////////////
         }
         else {
           Instruct = false
             ////////////////////////////////////////////////////////////////////////////
-            NumTrials = 5; // cant be more then 365
+            NumTrials = 10; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
             if_warmup=0
         }
