@@ -366,7 +366,7 @@ var if_warmup = 1;
         var Title = '<H2 align = "center">Instructions</H2>';
 
         
-        var ThisImage = ` <div align="center"><img src="${slides_set}_Slide${PageNum}.PNG" alt="house" height="${PicHeight}" align="center"></div>`;
+        var ThisImage = ` <div align="center"><img src="${slides_set}_Slide${PageNum}.png" alt="house" height="${PicHeight}" align="center"></div>`;
   
         //        $('#TextBoxDiv').html(Title + ThisImage);
         $('#TextBoxDiv').html(ThisImage);
