@@ -1245,9 +1245,10 @@ var if_warmup = 1;
         var url = "https://script.google.com/macros/s/AKfycbysjYIZ43htkTjNuW3BvFC46WTL_xfP8CxGff3z4yCi8cwYLuszn_i5i4penPqJSqQiNQ/exec"; // Replace with your script URL
         
         var options = {
+            redirect: "follow",
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "text/plain;charset=utf-8",
             },
             body: JSON.stringify(outputData)
         };
