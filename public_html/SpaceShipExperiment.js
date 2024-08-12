@@ -1241,29 +1241,21 @@ var if_warmup = 1;
 
 // send data to google drive
     function saveData(outputData) {
+        // Reference to the Firestore collection
+        const experimentCollection = db.collection("experiment_data");
 
-        var url = "https://script.google.com/macros/s/AKfycbysjYIZ43htkTjNuW3BvFC46WTL_xfP8CxGff3z4yCi8cwYLuszn_i5i4penPqJSqQiNQ/exec"; // Replace with your script URL
-        
-        var options = {
-            redirect: "follow",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(outputData)
-        };
-
-        fetch(url, options)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Data saved successfully:", data);
+        // Add a new document with the output data
+        experimentCollection.add(outputData)
+            .then((docRef) => {
+                console.log("Document written with ID: ", docRef.id);
             })
-            .catch(error => {
-                console.error("Error saving data:", error);
+            .catch((error) => {
+                console.error("Error adding document: ", error);
             });
 
-        check_if_warmup(outputData.ReadyToMain);
+        check_if_warmup(data.ReadyToMain);
     }
+
 
 
     function check_if_warmup(ReadyToMain) {

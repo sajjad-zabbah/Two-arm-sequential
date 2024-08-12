@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html>
-    <head>
+<head>
     <title>Experiment</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media = "screen"/>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="SpaceShipExperiment.js"></script>
-  </head>
-  <body>
-  
-  <div class ='Main' id = 'Main'>
-            <div class = 'DivElements' id = 'Top'></div>
-            <div class ='DivElements' id = 'Stage'> </div>
-            <div class ='DivElements' id = 'Bottom'> </div>
-   </div>
- 
-  </body>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen" />
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
+    <!-- Initialize Firebase -->
+    <script>
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
+            authDomain: "two-arm-sequential.firebaseapp.com",
+            projectId: "two-arm-sequential",
+            storageBucket: "two-arm-sequential.appspot.com",
+            messagingSenderId: "298233810811",
+            appId: "1:298233810811:web:fe25db970e55d1057077de",
+            measurementId: "G-4V7MBYDGMV"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    <!-- Custom JS -->
+    <script src="SpaceShipExperiment.js"></script>
+</head>
+<body>
+    <div class='Main' id='Main'>
+        <div class='DivElements' id='Top'></div>
+        <div class='DivElements' id='Stage'></div>
+        <div class='DivElements' id='Bottom'></div>
+    </div>
+</body>
 </html>
