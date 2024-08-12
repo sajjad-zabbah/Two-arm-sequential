@@ -1221,7 +1221,8 @@ var if_warmup = 1;
         CreateDiv('Stage', 'TextBoxDiv');
     $('#TextBoxDiv').html(message);
     
-        downloadResponses(outputData)
+        //downloadResponses(outputData);
+        saveData(outputData);
 
     }
 
@@ -1236,7 +1237,30 @@ var if_warmup = 1;
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
     check_if_warmup(data.ReadyToMain);
-}
+    }
+
+// send data to google drive
+    function saveData(outputData) {
+        var url = "https://script.google.com/macros/s/AKfycbwmBbsWM4GsLpG0mnjYhNxg5Vg8wGQGoNfLWYOYOJW4esu_0WMJO4DSnKqs5WaMdtw0-Q/exec"; // Replace with your script URL
+        var options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(outputData)
+        };
+
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data saved successfully:", data);
+            })
+            .catch(error => {
+                console.error("Error saving data:", error);
+            });
+        check_if_warmup(data.ReadyToMain);
+    }
+
 
     function check_if_warmup(ReadyToMain) {
     if (if_warmup===1 && ReadyToMain){
