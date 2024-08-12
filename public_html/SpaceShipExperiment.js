@@ -1242,7 +1242,8 @@ var if_warmup = 1;
 // send data to google drive
     function saveData(outputData) {
 
-        var url = "https://script.google.com/macros/s/AKfycbwmBbsWM4GsLpG0mnjYhNxg5Vg8wGQGoNfLWYOYOJW4esu_0WMJO4DSnKqs5WaMdtw0-Q/exec"; // Replace with your script URL
+        var url = "https://script.google.com/macros/s/AKfycbysjYIZ43htkTjNuW3BvFC46WTL_xfP8CxGff3z4yCi8cwYLuszn_i5i4penPqJSqQiNQ/exec"; // Replace with your script URL
+        
         var options = {
             method: "POST",
             headers: {
