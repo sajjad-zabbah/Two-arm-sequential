@@ -49,7 +49,18 @@ $(document).ready(function () {
     var portal_rotate_html  = '<img id = "id_portal"  src="images/Portal_rotating.gif "       width = "' + thisHeight * 0.3 + '"  class="img-responsive center-block" >';
     var Sad_Face_html       = '<img id = "id_Sad_Face" src="images/Sad.png"                   width = "' + thisHeight * 0.4 + '"  class="img-responsive center-block" >';
 
- 
+    const firebaseConfig = {
+        apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
+        authDomain: "two-arm-sequential.firebaseapp.com",
+        projectId: "two-arm-sequential",
+        storageBucket: "two-arm-sequential.appspot.com",
+        messagingSenderId: "298233810811",
+        appId: "1:298233810811:web:fe25db970e55d1057077de",
+        measurementId: "G-4V7MBYDGMV"
+    };
+
+    // Initialize Firebase
+    const db = firebase.firestore();
 
 ////////////////////////////////////////////////////////////////////////////////
 //            Define question and answers at the beginning
