@@ -1241,6 +1241,7 @@ var if_warmup = 1;
 
 // send data to google drive
     function saveData(outputData) {
+
         var url = "https://script.google.com/macros/s/AKfycbwmBbsWM4GsLpG0mnjYhNxg5Vg8wGQGoNfLWYOYOJW4esu_0WMJO4DSnKqs5WaMdtw0-Q/exec"; // Replace with your script URL
         var options = {
             method: "POST",
@@ -1258,7 +1259,8 @@ var if_warmup = 1;
             .catch(error => {
                 console.error("Error saving data:", error);
             });
-        check_if_warmup(data.ReadyToMain);
+
+        check_if_warmup(outputData.ReadyToMain);
     }
 
 
