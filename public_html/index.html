@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-       <title>Experiment</title>
+    <title>Experiment</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen"/>
+    <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="SpaceShipExperiment.js"></script>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
 
     <!-- Initialize Firebase -->
     <script>
 
         // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        var firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
             authDomain: "two-arm-sequential.firebaseapp.com",
             projectId: "two-arm-sequential",
@@ -28,8 +28,8 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
+        const app=firebase.initializeApp(firebaseConfig);
+        const db =firebase.analytics();
     </script>
 
     <!-- Custom JS -->
