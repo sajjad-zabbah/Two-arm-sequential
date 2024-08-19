@@ -61,9 +61,7 @@ const firebaseConfig = {
     measurementId: "G-4V7MBYDGMV"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //            Define question and answers at the beginning
