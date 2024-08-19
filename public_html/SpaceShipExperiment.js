@@ -51,9 +51,23 @@ $(document).ready(function () {
 
 
 // Import the functions you need from the SDKs you need
-//import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
-//import { getFirestore } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
 
+// Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
+    authDomain: "two-arm-sequential.firebaseapp.com",
+    projectId: "two-arm-sequential",
+    storageBucket: "two-arm-sequential.appspot.com",
+    messagingSenderId: "298233810811",
+    appId: "1:298233810811:web:fe25db970e55d1057077de",
+    measurementId: "G-4V7MBYDGMV"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 ////////////////////////////////////////////////////////////////////////////////
 //            Define question and answers at the beginning
