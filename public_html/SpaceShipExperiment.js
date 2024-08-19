@@ -50,6 +50,10 @@ $(document).ready(function () {
     var Sad_Face_html       = '<img id = "id_Sad_Face" src="images/Sad.png"                   width = "' + thisHeight * 0.4 + '"  class="img-responsive center-block" >';
 
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
+
 // Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
@@ -61,7 +65,9 @@ const firebaseConfig = {
     measurementId: "G-4V7MBYDGMV"
 };
 
-
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 ////////////////////////////////////////////////////////////////////////////////
 //            Define question and answers at the beginning
