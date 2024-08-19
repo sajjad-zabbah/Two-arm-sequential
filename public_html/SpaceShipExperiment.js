@@ -51,8 +51,8 @@ $(document).ready(function () {
 
 
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
+//import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+//import { getFirestore } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
 
 // Your Firebase configuration
 const firebaseConfig = {
