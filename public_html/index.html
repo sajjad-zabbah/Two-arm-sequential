@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Experiment</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="module" src="SpaceShipExperiment.js"></script>
-</head>
-<body>
-    <div class='Main' id='Main'>
-        <div class='DivElements' id='Top'></div>
-        <div class='DivElements' id='Stage'></div>
-        <div class='DivElements' id='Bottom'></div>
-    </div>
-    <!-- Your custom JS file using type="module" -->
-</body>
+    <head>
+        <title>Experiment</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        
+        <!-- Include Firebase SDKs -->
+        <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
+        
+        <!-- Your main JavaScript file -->
+        <script src="SpaceShipExperiment.js"></script>
+    </head>
+    <body>
+        <div class='Main' id='Main'>
+            <div class='DivElements' id='Top'></div>
+            <div class='DivElements' id='Stage'></div>
+            <div class='DivElements' id='Bottom'></div>
+        </div>
+    </body>
 </html>
-
