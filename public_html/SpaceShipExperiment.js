@@ -1207,7 +1207,9 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
         Missed3: missed3,
         QuesAns: ques_ans,
         ReadyToMain: allCorrect,
-        PercRew: perc_rew
+        PercRew: perc_rew,
+        Timestamp: new Date().toISOString() // Save current date and time in ISO format
+
     };
 
 
@@ -1232,7 +1234,9 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
                                     Missed3     = [${outputData.Missed3}];<br>
                                     QuesAns     = [${outputData.QuesAns}];<br>
                                     ReadyToMain = [${outputData.ReadyToMain}];<br>
-                                    PercRew     = [${outputData.PercRew}]</p>`;
+                                    PercRew     = [${outputData.PercRew}];<br>
+                                    Timestamp   = [${outputData.Timestamp}]</p>`;
+
                                     
     // Sajjad: here you can eaither put outputHtml or message alone                                 
 
@@ -1260,22 +1264,32 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
     check_if_warmup(data.ReadyToMain);
     }
 
-// send data to google drive
-    function saveData(outputData) {
-        // Reference to the Firestore collection
-        const experimentCollection = db.collection("experiment_data");
+// saving in firestore 
 
-        // Add a new document with the output data
-        experimentCollection.add(outputData)
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
+function saveData(outputData) {
+    // Get current date and time
+    const now = new Date();
+    const date = now.toLocaleDateString('en-GB').replace(/\//g, '_'); // e.g., "16-09-2024"
+    const time = now.toLocaleTimeString('en-GB').replace(/:/g, '_');  // e.g., "14-45-30"
+    
+    // Combine participant ID, date, and time
+    const customID = `${outputData.ID}_${date}_${time}`;  // e.g., "0001_16-09-2024_14-45-30"
+    
+    // Reference to the Firestore collection
+    const experimentCollection = db.collection("experiment_data");
 
-        check_if_warmup(outputData.ReadyToMain);
-    }
+    // Add a new document with the custom ID
+    experimentCollection.doc(customID).set(outputData)
+        .then(() => {
+            console.log("Document written with custom ID: ", customID);
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+
+    check_if_warmup(outputData.ReadyToMain);
+}
+
 
 
 
