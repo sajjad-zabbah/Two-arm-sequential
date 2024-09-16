@@ -57,6 +57,8 @@ const firebaseConfig = {
     var missed2          = new Array;
     var missed3          = new Array;
     
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
+
     var NumTrials        = 0;
 
 
@@ -76,9 +78,9 @@ var questions = [
     {
         text: "Which one represents the sequence of a full journey?",
         answers: [
-            { id: "answer1", text: "Earth – Spaceship – Space station – Alien planet " },
-            { id: "answer2", text: "Earth – Space station – Alien planet – Spaceship" },
-            { id: "answer3", text: "Earth – Alien planet  – Space station – Spaceshi" }
+            { id: "answer1", text: "Earth, Spaceship, Space station, Alien planet " },
+            { id: "answer2", text: "Earth, Space station, Alien planet, Spaceship" },
+            { id: "answer3", text: "Earth, Alien planet,  Space station, Spaceshi" }
         ]
     },   // Q2
     {
@@ -92,9 +94,9 @@ var questions = [
         {
         text: "Which one is correct?",
         answers: [
-            { id: "answer1", text: "Helium-brown planet always has more money." },
+            { id: "answer1", text: "The amount of money in both planets changes periodically." },
             { id: "answer2", text: "Helium-purple planet always has more money." },
-            { id: "answer3", text: "The amount of money in both planets changes periodically." }
+            { id: "answer3", text: "Helium-brown planet always has more money." }
         ]
     },  // Q4
         {
@@ -109,8 +111,8 @@ var questions = [
         text: "Consider one spaceship. Which one is correct?",
         answers: [
             { id: "answer1", text: "It always goes to the same space station." },
-            { id: "answer2", text: "Its space station destination is random." },
-            { id: "answer3", text: "Its space station destination will change periodically." }
+            { id: "answer2", text: "Its space station destination will change periodically." },
+            { id: "answer3", text: "Its space station destination is random." }
         ]
     },  // Q6
         {
@@ -139,12 +141,9 @@ var questions = [
     }
 ];
 
-// true responses
-const trueResponses = ['answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3'];
+// true responses.      Q1      , Q2       ,  Q3      , Q4.      ,  Q5      , Q6       ,  Q7      , Q8
+const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'answer3', 'answer1', 'answer1'];
 
-var currentQuestionIndex = 0;
-       // if warm_up 
-var if_warmup = 1; 
    
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -158,13 +157,6 @@ var if_warmup = 1;
     
     },10);
     
-////////////////////////////////////////////////////////////////////////////
-    var rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
-    var wait            = 1000; // how many MILLISECONDS to wait befor saying you are too late 
-    var wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
-    var wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
-    var wait_break      = 30;   // how many SECONDS to wait for the break
-    var trial_break   	= 95  ; // every how many trials to have a break
     
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
@@ -211,14 +203,26 @@ var if_warmup = 1;
       if (if_warmup==1) {
             Instruct = true 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 10; // cant be more then 365
+            NumTrials = 10; // 
           ////////////////////////////////////////////////////////////////////////////
+          rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
+          wait            = 5000; // how many MILLISECONDS to wait befor saying you are too late (Time to reply)
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
           Instruct = false
             ////////////////////////////////////////////////////////////////////////////
-            NumTrials = 10; // cant be more then 365
+            NumTrials = 365; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
+          rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
+          wait            = 1000; // how many MILLISECONDS to wait befor saying you are too late 
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
             if_warmup=0
         }
         
@@ -303,7 +307,6 @@ var if_warmup = 1;
                   S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 3';
                   S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 4';
               }
-                
             };
     
             // Get EXtragalactic planet images
@@ -1271,7 +1274,7 @@ var if_warmup = 1;
                 console.error("Error adding document: ", error);
             });
 
-        check_if_warmup(data.ReadyToMain);
+        check_if_warmup(outputData.ReadyToMain);
     }
 
 
