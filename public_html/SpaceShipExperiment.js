@@ -331,19 +331,28 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
             // Get spaceship images 
             if (if_warmup===0) {
               if (A1 === 0)   {
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
+                  A1_Img = 'SpaceShip_B.png'; A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_R.png'; A2_name = 'Red SpaceShipt';
+                  A1_Img_select = 'SpaceShip_B_Selected.png';
+                  A2_Img_select = 'SpaceShip_R_Selected.png';
+
               }    else if (A1 === 1) {
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_B.png'; A2_name = 'Black SpaceShipt';
+                  A1_Img = 'SpaceShip_R.png'; A1_name = 'Red SpaceShipt';
+                  A2_Img_select = 'SpaceShip_B_Selected.png';
+                  A1_Img_select = 'SpaceShip_R_Selected.png';
               }
             } else if (if_warmup===1){
               if (A1 === 0)   {
                   A1_Img = 'SpaceShip_L.png';    A1_name = 'Blue SpaceShipt';
                   A2_Img = 'SpaceShip_G.png';    A2_name = 'Green SpaceShipt';
+                  A1_Img_select = 'SpaceShip_L_Selected.png';
+                  A2_Img_select = 'SpaceShip_G_Selected.png';
               }    else if (A1 === 1) {
                   A2_Img = 'SpaceShip_L.png';    A2_name = 'Blue SpaceShipt';
                   A1_Img = 'SpaceShip_G.png';    A1_name = 'Green SpaceShipt';
+                  A2_Img_select = 'SpaceShip_L_Selected.png';
+                  A1_Img_select = 'SpaceShip_G_Selected.png';
               }
             };
         
@@ -357,6 +366,8 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
             S5_html     = '<img id = "id_Ex_plan_2" src="images/'  + S5_Img + '"  width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
             A1_html     = '<img id = "id_rocket_1"  src="images/'  + A1_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
             A2_html     = '<img id = "id_rocket_2"  src="images/'  + A2_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A1_slc_html = '<img id = "id_rocket_1"  src="images/'  + A1_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A2_slc_html = '<img id = "id_rocket_2"  src="images/'  + A2_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
 
             
             if (Instruct === true) {
@@ -529,9 +540,13 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
         if (A1_left) {
             left_html  = A1_html;
             right_html = A2_html;
+            left_slc_html  = A1_slc_html;
+            right_slc_html = A2_slc_html;
         } else {
             left_html  = A2_html;
             right_html = A1_html;
+            left_slc_html = A2_slc_html;
+            right_slc_html = A1_slc_html;
         }
         
         // display Rocket 1
@@ -623,10 +638,10 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
                 $("body").off("keydown");
                 if (A1_left) {
                     Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
                     Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
                 
             };            
@@ -638,7 +653,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
     // Sajjad
     // Step middle: showing which spaceship has been selected
     
-    function Step_m(TrialNum,level_2,left_html,right_html,k) {
+    function Step_m(TrialNum, level_2, left_html, left_slc_html, right_html, right_slc_html,k) {
         // if level_2=1 -> S2, else if level_2=2 -> S3
         console.log("Step_m");
         console.log("level_m: " + level_2);
@@ -669,7 +684,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
         
         CreateDiv('sub_stage_middle', 'id_rocket_left');
         $('#id_rocket_left').addClass('col-xs-12');
-        $('#id_rocket_left').html(left_html);
+        $('#id_rocket_left').html(left_slc_html);
         $('#id_rocket_left').css('margin', 'auto');
         $('#id_rocket_left').show()
         
@@ -679,7 +694,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
 
          CreateDiv('sub_stage_middle', 'id_rocket_right');
         $('#id_rocket_right').addClass('col-xs-12');
-        $('#id_rocket_right').html(right_html);
+        $('#id_rocket_right').html(right_slc_html);
         $('#id_rocket_right').css('margin', 'auto');
         $('#id_rocket_right').show()       
         
