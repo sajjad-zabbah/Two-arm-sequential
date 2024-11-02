@@ -80,7 +80,7 @@ var questions = [
         answers: [
             { id: "answer1", text: "Earth, Spaceship, Space station, Alien planet " },
             { id: "answer2", text: "Earth, Space station, Alien planet, Spaceship" },
-            { id: "answer3", text: "Earth, Alien planet,  Space station, Spaceshi" }
+            { id: "answer3", text: "Earth, Alien planet,  Space station, Spaceship" }
         ]
     },   // Q2
     {
@@ -142,7 +142,7 @@ var questions = [
 ];
 
 // true responses.      Q1      , Q2       ,  Q3      , Q4.      ,  Q5      , Q6       ,  Q7      , Q8
-const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'answer3', 'answer1', 'answer1'];
+const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'answer3', 'answer1', 'answer1'];
 
    
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
         console.log("Step_getdata");
         
       if (if_warmup==1) {
-            Instruct = true 
+            Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
             NumTrials = 10; // 
           ////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
           trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
-          Instruct = false
             ////////////////////////////////////////////////////////////////////////////
             NumTrials = 365; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
@@ -370,11 +369,13 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
             A2_slc_html = '<img id = "id_rocket_2"  src="images/'  + A2_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
 
             
-            if (Instruct === true) {
+            if (Instruct === true && if_warmup===1) {
                 Instructions(1,ID); // perhaps should probably start with trial 1
-            } else {
-                Step_pre_trial(1,ID);
-            }   
+            } else if (Instruct === true && if_warmup===0) {
+                Instructions_main(42,ID);;
+            } else if (Instruct === false) {
+              Step_pre_trial(1);
+            }
         }
         
     }
@@ -406,11 +407,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
 
         $('#Bottom').html(Buttons);
 
-        if (PageNum === 1) {
+        if (PageNum === 1 || PageNum>NumPages) {
             $('#Back').hide();
         }
         ;
-        if (PageNum === NumPages) {
+        if (PageNum === NumPages || PageNum>NumPages) {
             $('#Next').hide();
         }
         ;
@@ -437,11 +438,78 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
             $('#TextBoxDiv').remove();
             $('#Stage').empty();
             $('#Bottom').empty();
-            Step_pre_trial(1);
+            if (PageNum===NumPages) {
+               Step_pre_trial(1);
+            }
+            else 
+            { 
+              Step_ShowQuestions();
+            }
         });
         
     }
     
+     // first page show the first page of experiment, second page show the second and third pages 
+    function Instructions_main(PageNum,ID) {
+        $('#Stage').empty();
+        $('#Top').css('height', thisHeight / 18);
+        //        $('#Stage').css('width', DispWidth + DispWidth*1/2);
+        $('#Stage').css('width', DispWidth + DispWidth*.6);
+        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Bottom').css('min-height', thisHeight / 20);
+
+        var NumPages = 47;//number of pages //13
+        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
+
+        // slides_set THE which instructions to show 
+
+        CreateDiv('Stage', 'TextBoxDiv');
+        var Title = '<H2 align = "center">Instructions</H2>';
+        var ThisImage = '<div align = "center"><img src="images/' + slides_set + '_Slide' + PageNum + '.png" alt="house" height="' + PicHeight + '" align="center"></div>';
+        //        $('#TextBoxDiv').html(Title + ThisImage);
+        $('#TextBoxDiv').html(ThisImage);
+
+        var Buttons = '<div align="center"><input align="center" type="button"  class="btn btn-default" id="Back" value="Back" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Next" value="Next" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Start" value="Start!" ></div>';
+
+        $('#Bottom').html(Buttons);
+
+        if (PageNum === 33) {
+            $('#Back').hide();
+        }
+        ;
+        if (PageNum === NumPages) {
+            $('#Next').hide();
+        }
+        ;
+        if (PageNum < NumPages) {
+            $('#Start').hide();
+        }
+        ;
+
+        $('#Back').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum - 1);
+        });
+
+        $('#Next').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum + 1);
+        });
+
+        $('#Start').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Step_pre_trial(1);
+        });
+        
+    }
     
     // The actual experimment starts here
     function Step_pre_trial(TrialNum,ID) {
@@ -625,10 +693,10 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 if (A1_left) {
                     Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
                     Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
             } else if (k === 74) {
                 $("body").off("keydown");
@@ -654,51 +722,18 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
     // Step middle: showing which spaceship has been selected
     
     function Step_m(TrialNum, level_2, left_html, left_slc_html, right_html, right_slc_html,k) {
-        // if level_2=1 -> S2, else if level_2=2 -> S3
-        console.log("Step_m");
-        console.log("level_m: " + level_2);
-                
-        if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
-            var html_In_plan = S2_html;
-        } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
-            var html_In_plan = S3_html;
-        };
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-      
-        ////////////////////// sub_stage_top ///////////////////////////////////
-        // Creat the bottom row for spaceships
-        CreateDiv('Stage', 'sub_stage_middle');
-        $('#sub_stage_middle').addClass('row');
-        $('#sub_stage_middle').css('height', thisHeight * 0.1);        
-        $('#sub_stage_middle').css('margin', 'auto');
-        
 
         if (k === 70){
-        // display Rocket 1
-        
-        CreateDiv('sub_stage_middle', 'id_rocket_left');
-        $('#id_rocket_left').addClass('col-xs-12');
+        // display rectangle around reft Rocket 
         $('#id_rocket_left').html(left_slc_html);
-        $('#id_rocket_left').css('margin', 'auto');
-        $('#id_rocket_left').show()
-        
+        $('#sub_stage_bottom').html('');
         }
         else if (k === 74) {
-        // display Rocket 2
-
-         CreateDiv('sub_stage_middle', 'id_rocket_right');
-        $('#id_rocket_right').addClass('col-xs-12');
+        // display rectangle around right Rocket 
         $('#id_rocket_right').html(right_slc_html);
-        $('#id_rocket_right').css('margin', 'auto');
-        $('#id_rocket_right').show()       
-        
+        $('#sub_stage_bottom').html('');
         }
+        
         setTimeout(function () { // wait between pages
         
             Step_2(TrialNum,level_2)
@@ -1120,7 +1155,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
         });
 
           if (if_warmup===1) {
-            Step_ShowQuestions();
+            Instructions(33,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
             Step_ShowData
           } 
@@ -1177,7 +1212,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer3', 'a
             Step_ShowQuestions();
         } else {
             // All questions are answered
-            alert('You have completed all the questions.');
+            //alert('You have completed all the questions.');
             Step_ShowData(ques_ans)
   
         }
@@ -1310,7 +1345,6 @@ function saveData(outputData) {
 
     function check_if_warmup(ReadyToMain) {
     if (if_warmup===1 && ReadyToMain){
-        Instruct = false;
           ////////////////////////////////////////////////////////////////////////////
         var NumTrials = 5; // cant be more then 365
           ////////////////////////////////////////////////////////////////////////////
