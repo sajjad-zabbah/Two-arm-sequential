@@ -693,7 +693,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 if (A1_left) {
                     Action[TrialNum-1] = 1;
-                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
                     Action[TrialNum-1] = 2;
                     Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
