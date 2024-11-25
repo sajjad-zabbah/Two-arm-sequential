@@ -390,7 +390,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
 
-        var NumPages = 32;//number of pages //13
+        var NumPages = 33;//number of pages //13
         var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
