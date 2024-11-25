@@ -217,7 +217,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             NumTrials = 365; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
-          wait            = 1000; // how many MILLISECONDS to wait befor saying you are too late 
+          wait            = 1100; // how many MILLISECONDS to wait befor saying you are too late 
           wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
           wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
           wait_break      = 30;   // how many SECONDS to wait for the break
@@ -458,7 +458,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
 
-        var NumPages = 47;//number of pages //13
+        var NumPages = 49;//number of pages //13
         var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
@@ -475,7 +475,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
         $('#Bottom').html(Buttons);
 
-        if (PageNum === 33) {
+        if (PageNum === 34) {
             $('#Back').hide();
         }
         ;
