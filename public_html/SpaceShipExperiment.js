@@ -300,11 +300,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
               }
             } else if (if_warmup===1){
                     if (S2 === 0)    {
-                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 3';
-                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 4';
+                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 1';
+                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 2';
               }    else if (S2 === 1)  {
-                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 3';
-                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 4';
+                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 1';
+                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 2';
               }
             };
     
@@ -741,7 +741,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         },2000);
 }
 
-    // Step 2: arrive at in planet, press space to use portal, once pressed move to stage 3
+    // Step 2: arrive at space spaceship, press space to use portal, once pressed move to stage 3
     function Step_2(TrialNum,level_2) {
         // if level_2=1 -> S2, else if level_2=2 -> S3
         console.log("Step_2");
@@ -755,10 +755,10 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         $('#Bottom').css('min-height', thisHeight / 20);
                 
         if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S2_name + '</H2></div>';
             var html_In_plan = S2_html;
         } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S3_name + '</H2></div>';
             var html_In_plan = S3_html;
         };
 
@@ -1154,7 +1154,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         });
 
           if (if_warmup===1) {
-            Instructions(33,Subject_ID); // slide 33 to show the moving to question phase
+            Instructions(34,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
             Step_ShowData
           } 
@@ -1344,9 +1344,6 @@ function saveData(outputData) {
 
     function check_if_warmup(ReadyToMain) {
     if (if_warmup===1 && ReadyToMain){
-          ////////////////////////////////////////////////////////////////////////////
-        var NumTrials = 5; // cant be more then 365
-          ////////////////////////////////////////////////////////////////////////////
         if_warmup=0;
         go_to_main()
     }
