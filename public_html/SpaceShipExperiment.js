@@ -203,7 +203,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
       if (if_warmup==1) {
             Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 10; // 
+            NumTrials = 2; // 
           ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
           wait            = 5000; // how many MILLISECONDS to wait befor saying you are too late (Time to reply)
@@ -372,7 +372,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             if (Instruct === true && if_warmup===1) {
                 Instructions(1,ID); // perhaps should probably start with trial 1
             } else if (Instruct === true && if_warmup===0) {
-                Instructions_main(42,ID);;
+                Instructions_main(43,ID);;
             } else if (Instruct === false) {
               Step_pre_trial(1);
             }
@@ -458,7 +458,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
 
-        var NumPages = 49;//number of pages //13
+        var NumPages = 49;//number of pages 
         var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
@@ -775,7 +775,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             $('#sub_stage_top').addClass('row');
             $('#sub_stage_top').css('height', thisHeight * 0.3);  
 
-        
         
             ////////////////////// sub_stage_middle ////////////////////////////////
             // some space between planet and portal 
