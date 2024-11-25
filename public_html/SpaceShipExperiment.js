@@ -59,8 +59,8 @@ const firebaseConfig = {
     
     var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
 
-    var NumTrials        = 0;
-
+    var NumTrials    = 0;
+    var pre_tr       = 0;
 
     // Creating the htmls for the objects that are always the same, those changing are set in Step_getdata
     var Earth_html          = '<img id = "id_Plan_Earth" src="images/Planet_Earth.png"        width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
@@ -204,6 +204,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
             NumTrials = 2; // 
+            pre_tr    = 0; // num trials before warm up
           ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
           wait            = 5000; // how many MILLISECONDS to wait befor saying you are too late (Time to reply)
@@ -214,6 +215,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         }
         else {
             ////////////////////////////////////////////////////////////////////////////
+            pre_tr    = NumTrials; // num trials before warm up
             NumTrials = 365; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
@@ -521,14 +523,14 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         
         CreateDiv('Stage', 'TextBoxDiv1');
         
-        Trial[TrialNum-1] = TrialNum;
-        Action[TrialNum-1] = 0;
-        RT1[TrialNum-1] = 0;
-        RT2[TrialNum-1] = 0;
-        RT3[TrialNum-1] = 0;
-        missed1[TrialNum-1] = 0;
-        missed2[TrialNum-1] = 0;
-        missed3[TrialNum-1] = 0;
+        Trial[pre_tr+TrialNum-1] = TrialNum;
+        Action[pre_tr+TrialNum-1] = 0;
+        RT1[pre_tr+TrialNum-1] = 0;
+        RT2[pre_tr+TrialNum-1] = 0;
+        RT3[pre_tr+TrialNum-1] = 0;
+        missed1[pre_tr+TrialNum-1] = 0;
+        missed2[pre_tr+TrialNum-1] = 0;
+        missed3[pre_tr+TrialNum-1] = 0;
 
         setTimeout(function () {
             $('#TextBoxDiv1').html('<H1 align = "center">3</H1>');
@@ -673,7 +675,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 console.log("Timer in Step 1 fired");    
                 clearTimeout(timer);
-                missed1[TrialNum-1] = 1;
+                missed1[pre_tr+TrialNum-1] = 1;
                 Step_MissedIt(TrialNum);
             }, wait);
         };
@@ -688,27 +690,27 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             if (k === 70){
                 $("body").off("keydown");
                 //                alert( "N 1 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 if (A1_left) {
-                    Action[TrialNum-1] = 1;
+                    Action[pre_tr+TrialNum-1] = 1;
                     Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 2;
+                    Action[pre_tr+TrialNum-1] = 2;
                     Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
             } else if (k === 74) {
                 $("body").off("keydown");
                 //                alert( "N 2 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off");
                 $("body").off("keydown");
                 if (A1_left) {
-                    Action[TrialNum-1] = 2;
+                    Action[pre_tr+TrialNum-1] = 2;
                     Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 1;
+                    Action[pre_tr+TrialNum-1] = 1;
                     Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
                 
@@ -826,7 +828,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                         $("body").off("keydown"); // detaches the keydwon from our dear event 
                         console.log("Timer in Step 2");    
                         clearTimeout(timer);
-                        missed2[TrialNum-1] = 1;
+                        missed2[pre_tr+TrialNum-1] = 1;
                         Step_MissedIt(TrialNum);
                     }, wait);
                 };
@@ -839,7 +841,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                     if (k ===32){
                         $("body").off("keydown");    
                         clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                        RT2[TrialNum-1] = (new Date()).getTime() - tic2;
+                        RT2[pre_tr+TrialNum-1] = (new Date()).getTime() - tic2;
                     
                         if (Transition[TrialNum] === 0 ){
                             if (level_2 === 1){ // if transition is zero level_2 => level_3 
@@ -961,7 +963,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                     $("body").off("keydown"); // detaches the keydwon from our dear event 
                     console.log("Timer in Step 3");
                     clearTimeout(timer);
-                    missed3[TrialNum-1] = 1;
+                    missed3[pre_tr+TrialNum-1] = 1;
                     Step_MissedIt(TrialNum);
                 }, wait);
             };
@@ -972,7 +974,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                 $("body").off("keydown");
                 if (k ===32){
                     clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                    RT3[TrialNum-1] = (new Date()).getTime() - tic3;
+                    RT3[pre_tr+TrialNum-1] = (new Date()).getTime() - tic3;
                     rewarding ();
                 
                     // replace this by 
