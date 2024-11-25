@@ -86,9 +86,9 @@ var questions = [
     {
         text: "When do you need to press space?",
         answers: [
-            { id: "answer1", text: "Collecting money at the alien planet." },
-            { id: "answer2", text: "Entering the portal." },
-            { id: "answer3", text: "Both of the above." }
+            { id: "answer1", text: "For collecting money at the alien planet." },
+            { id: "answer2", text: "For entering the portal." },
+            { id: "answer3", text: "For both of the above." }
         ]
     },  // Q3
         {
