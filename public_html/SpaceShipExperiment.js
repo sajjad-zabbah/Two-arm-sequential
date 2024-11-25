@@ -590,7 +590,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
         // the text
         CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center">Choose a Rocket</H2></div>';
+        var Title = '<div id = "Title"><H2 align = "center">Choose a spaceship</H2></div>';
         $('#TextBoxDiv').html(Title);
         
         
@@ -901,11 +901,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             } else {
                 if(level_3===1){
                     // S4
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S4_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S4_name + '</H2></div>';
                     var html_Ex_plan = S4_html;
                 } else {
                     // S5 
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S5_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet' + S5_name + '</H2></div>';
                     var html_Ex_plan = S5_html;
                 };
             }
