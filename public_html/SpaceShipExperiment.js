@@ -592,7 +592,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
         // the text
         CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center">Choose a spaceship</H2></div>';
+        var Title = '<div id = "Title"><H2 align = "center">Choose a Spaceship</H2></div>';
         $('#TextBoxDiv').html(Title);
         
         
@@ -740,7 +740,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         
             Step_2(TrialNum,level_2)
 
-        },2000);
+        },200);
 }
 
     // Step 2: arrive at space spaceship, press space to use portal, once pressed move to stage 3
@@ -907,7 +907,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                     var html_Ex_plan = S4_html;
                 } else {
                     // S5 
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet' + S5_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S5_name + '</H2></div>';
                     var html_Ex_plan = S5_html;
                 };
             }
