@@ -203,7 +203,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
       if (if_warmup==1) {
             Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 2; // 
+            NumTrials = 20; // 
             pre_tr    = 0; // num trials before warm up
           ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
