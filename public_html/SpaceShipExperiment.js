@@ -1,4 +1,21 @@
 $(document).ready(function () {
+  
+  // Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
+    authDomain: "two-arm-sequential.firebaseapp.com",
+    projectId: "two-arm-sequential",
+    storageBucket: "two-arm-sequential.appspot.com",
+    messagingSenderId: "298233810811",
+    appId: "1:298233810811:web:fe25db970e55d1057077de",
+    measurementId: "G-4V7MBYDGMV"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firestore
+    const db = firebase.firestore();
 
     // Initial Display Parameters
     thisHeight = $(document).height() * .9;
@@ -40,14 +57,17 @@ $(document).ready(function () {
     var missed2          = new Array;
     var missed3          = new Array;
     
-    var NumTrials        = 0;
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
 
+    var NumTrials    = 0;
+    var pre_tr       = 0;
 
     // Creating the htmls for the objects that are always the same, those changing are set in Step_getdata
     var Earth_html          = '<img id = "id_Plan_Earth" src="images/Planet_Earth.png"        width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
     var Portal_html         = '<img id = "id_portal"  src="images/Portal.gif "                width = "' + thisHeight * 0.3 + '"  class="img-responsive center-block" >'; // non rotating portal 
     var portal_rotate_html  = '<img id = "id_portal"  src="images/Portal_rotating.gif "       width = "' + thisHeight * 0.3 + '"  class="img-responsive center-block" >';
     var Sad_Face_html       = '<img id = "id_Sad_Face" src="images/Sad.png"                   width = "' + thisHeight * 0.4 + '"  class="img-responsive center-block" >';
+
 
 
 
@@ -58,25 +78,25 @@ var questions = [
     {
         text: "Which one represents the sequence of a full journey?",
         answers: [
-            { id: "answer1", text: "Earth – Spaceship – Space station – Alien planet " },
-            { id: "answer2", text: "Earth – Space station – Alien planet – Spaceship" },
-            { id: "answer3", text: "Earth – Alien planet  – Space station – Spaceshi" }
+            { id: "answer1", text: "Earth, Spaceship, Space station, Alien planet " },
+            { id: "answer2", text: "Earth, Space station, Alien planet, Spaceship" },
+            { id: "answer3", text: "Earth, Alien planet,  Space station, Spaceship" }
         ]
     },   // Q2
     {
         text: "When do you need to press space?",
         answers: [
-            { id: "answer1", text: "Collecting money at the alien planet." },
-            { id: "answer2", text: "Entering the portal." },
-            { id: "answer3", text: "Both of the above." }
+            { id: "answer1", text: "For collecting money at the alien planet." },
+            { id: "answer2", text: "For entering the portal." },
+            { id: "answer3", text: "For both of the above." }
         ]
     },  // Q3
         {
         text: "Which one is correct?",
         answers: [
-            { id: "answer1", text: "Helium-brown planet always has more money." },
+            { id: "answer1", text: "The amount of money in both planets changes periodically." },
             { id: "answer2", text: "Helium-purple planet always has more money." },
-            { id: "answer3", text: "The amount of money in both planets changes periodically." }
+            { id: "answer3", text: "Helium-brown planet always has more money." }
         ]
     },  // Q4
         {
@@ -91,8 +111,8 @@ var questions = [
         text: "Consider one spaceship. Which one is correct?",
         answers: [
             { id: "answer1", text: "It always goes to the same space station." },
-            { id: "answer2", text: "Its space station destination is random." },
-            { id: "answer3", text: "Its space station destination will change periodically." }
+            { id: "answer2", text: "Its space station destination will change periodically." },
+            { id: "answer3", text: "Its space station destination is random." }
         ]
     },  // Q6
         {
@@ -121,12 +141,9 @@ var questions = [
     }
 ];
 
-// true responses
-const trueResponses = ['answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3'];
+// true responses.      Q1      , Q2       ,  Q3      , Q4.      ,  Q5      , Q6       ,  Q7      , Q8
+const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'answer3', 'answer1', 'answer1'];
 
-var currentQuestionIndex = 0;
-       // if warm_up 
-var if_warmup = 1; 
    
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,13 +157,6 @@ var if_warmup = 1;
     
     },10);
     
-////////////////////////////////////////////////////////////////////////////
-    var rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
-    var wait            = 1000; // how many MILLISECONDS to wait befor saying you are too late 
-    var wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
-    var wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
-    var wait_break      = 30;   // how many SECONDS to wait for the break
-    var trial_break   	= 95  ; // every how many trials to have a break
     
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
@@ -191,16 +201,29 @@ var if_warmup = 1;
         console.log("Step_getdata");
         
       if (if_warmup==1) {
-            Instruct = true 
+            Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 10; // cant be more then 365
+            NumTrials = 20; // 
+            pre_tr    = 0; // num trials before warm up
           ////////////////////////////////////////////////////////////////////////////
+          rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
+          wait            = 5000; // how many MILLISECONDS to wait befor saying you are too late (Time to reply)
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
-          Instruct = false
             ////////////////////////////////////////////////////////////////////////////
-            NumTrials = 10; // cant be more then 365
+            pre_tr    = NumTrials; // num trials before warm up
+            NumTrials = 365; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
+          rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
+          wait            = 1100; // how many MILLISECONDS to wait befor saying you are too late 
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
             if_warmup=0
         }
         
@@ -279,13 +302,12 @@ var if_warmup = 1;
               }
             } else if (if_warmup===1){
                     if (S2 === 0)    {
-                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 3';
-                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 4';
+                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 1';
+                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 2';
               }    else if (S2 === 1)  {
-                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 3';
-                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 4';
+                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 1';
+                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 2';
               }
-                
             };
     
             // Get EXtragalactic planet images
@@ -310,19 +332,28 @@ var if_warmup = 1;
             // Get spaceship images 
             if (if_warmup===0) {
               if (A1 === 0)   {
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
+                  A1_Img = 'SpaceShip_B.png'; A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_R.png'; A2_name = 'Red SpaceShipt';
+                  A1_Img_select = 'SpaceShip_B_Selected.png';
+                  A2_Img_select = 'SpaceShip_R_Selected.png';
+
               }    else if (A1 === 1) {
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_B.png'; A2_name = 'Black SpaceShipt';
+                  A1_Img = 'SpaceShip_R.png'; A1_name = 'Red SpaceShipt';
+                  A2_Img_select = 'SpaceShip_B_Selected.png';
+                  A1_Img_select = 'SpaceShip_R_Selected.png';
               }
             } else if (if_warmup===1){
               if (A1 === 0)   {
                   A1_Img = 'SpaceShip_L.png';    A1_name = 'Blue SpaceShipt';
                   A2_Img = 'SpaceShip_G.png';    A2_name = 'Green SpaceShipt';
+                  A1_Img_select = 'SpaceShip_L_Selected.png';
+                  A2_Img_select = 'SpaceShip_G_Selected.png';
               }    else if (A1 === 1) {
                   A2_Img = 'SpaceShip_L.png';    A2_name = 'Blue SpaceShipt';
                   A1_Img = 'SpaceShip_G.png';    A1_name = 'Green SpaceShipt';
+                  A2_Img_select = 'SpaceShip_L_Selected.png';
+                  A1_Img_select = 'SpaceShip_G_Selected.png';
               }
             };
         
@@ -336,13 +367,17 @@ var if_warmup = 1;
             S5_html     = '<img id = "id_Ex_plan_2" src="images/'  + S5_Img + '"  width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
             A1_html     = '<img id = "id_rocket_1"  src="images/'  + A1_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
             A2_html     = '<img id = "id_rocket_2"  src="images/'  + A2_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A1_slc_html = '<img id = "id_rocket_1"  src="images/'  + A1_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A2_slc_html = '<img id = "id_rocket_2"  src="images/'  + A2_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
 
             
-            if (Instruct === true) {
+            if (Instruct === true && if_warmup===1) {
                 Instructions(1,ID); // perhaps should probably start with trial 1
-            } else {
-                Step_pre_trial(1,ID);
-            }   
+            } else if (Instruct === true && if_warmup===0) {
+                Instructions_main(43,ID);;
+            } else if (Instruct === false) {
+              Step_pre_trial(1);
+            }
         }
         
     }
@@ -357,7 +392,7 @@ var if_warmup = 1;
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
 
-        var NumPages = 32;//number of pages //13
+        var NumPages = 33;//number of pages //13
         var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
@@ -374,11 +409,11 @@ var if_warmup = 1;
 
         $('#Bottom').html(Buttons);
 
-        if (PageNum === 1) {
+        if (PageNum === 1 || PageNum>NumPages) {
             $('#Back').hide();
         }
         ;
-        if (PageNum === NumPages) {
+        if (PageNum === NumPages || PageNum>NumPages) {
             $('#Next').hide();
         }
         ;
@@ -405,11 +440,78 @@ var if_warmup = 1;
             $('#TextBoxDiv').remove();
             $('#Stage').empty();
             $('#Bottom').empty();
-            Step_pre_trial(1);
+            if (PageNum===NumPages) {
+               Step_pre_trial(1);
+            }
+            else 
+            { 
+              Step_ShowQuestions();
+            }
         });
         
     }
     
+     // first page show the first page of experiment, second page show the second and third pages 
+    function Instructions_main(PageNum,ID) {
+        $('#Stage').empty();
+        $('#Top').css('height', thisHeight / 18);
+        //        $('#Stage').css('width', DispWidth + DispWidth*1/2);
+        $('#Stage').css('width', DispWidth + DispWidth*.6);
+        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Bottom').css('min-height', thisHeight / 20);
+
+        var NumPages = 49;//number of pages 
+        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
+
+        // slides_set THE which instructions to show 
+
+        CreateDiv('Stage', 'TextBoxDiv');
+        var Title = '<H2 align = "center">Instructions</H2>';
+        var ThisImage = '<div align = "center"><img src="images/' + slides_set + '_Slide' + PageNum + '.png" alt="house" height="' + PicHeight + '" align="center"></div>';
+        //        $('#TextBoxDiv').html(Title + ThisImage);
+        $('#TextBoxDiv').html(ThisImage);
+
+        var Buttons = '<div align="center"><input align="center" type="button"  class="btn btn-default" id="Back" value="Back" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Next" value="Next" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Start" value="Start!" ></div>';
+
+        $('#Bottom').html(Buttons);
+
+        if (PageNum === 34) {
+            $('#Back').hide();
+        }
+        ;
+        if (PageNum === NumPages) {
+            $('#Next').hide();
+        }
+        ;
+        if (PageNum < NumPages) {
+            $('#Start').hide();
+        }
+        ;
+
+        $('#Back').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum - 1);
+        });
+
+        $('#Next').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum + 1);
+        });
+
+        $('#Start').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Step_pre_trial(1);
+        });
+        
+    }
     
     // The actual experimment starts here
     function Step_pre_trial(TrialNum,ID) {
@@ -421,14 +523,14 @@ var if_warmup = 1;
         
         CreateDiv('Stage', 'TextBoxDiv1');
         
-        Trial[TrialNum-1] = TrialNum;
-        Action[TrialNum-1] = 0;
-        RT1[TrialNum-1] = 0;
-        RT2[TrialNum-1] = 0;
-        RT3[TrialNum-1] = 0;
-        missed1[TrialNum-1] = 0;
-        missed2[TrialNum-1] = 0;
-        missed3[TrialNum-1] = 0;
+        Trial[pre_tr+TrialNum-1] = TrialNum;
+        Action[pre_tr+TrialNum-1] = 0;
+        RT1[pre_tr+TrialNum-1] = 0;
+        RT2[pre_tr+TrialNum-1] = 0;
+        RT3[pre_tr+TrialNum-1] = 0;
+        missed1[pre_tr+TrialNum-1] = 0;
+        missed2[pre_tr+TrialNum-1] = 0;
+        missed3[pre_tr+TrialNum-1] = 0;
 
         setTimeout(function () {
             $('#TextBoxDiv1').html('<H1 align = "center">3</H1>');
@@ -490,7 +592,7 @@ var if_warmup = 1;
 
         // the text
         CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center">Choose a Rocket</H2></div>';
+        var Title = '<div id = "Title"><H2 align = "center">Choose a Spaceship</H2></div>';
         $('#TextBoxDiv').html(Title);
         
         
@@ -508,9 +610,13 @@ var if_warmup = 1;
         if (A1_left) {
             left_html  = A1_html;
             right_html = A2_html;
+            left_slc_html  = A1_slc_html;
+            right_slc_html = A2_slc_html;
         } else {
             left_html  = A2_html;
             right_html = A1_html;
+            left_slc_html = A2_slc_html;
+            right_slc_html = A1_slc_html;
         }
         
         // display Rocket 1
@@ -569,7 +675,7 @@ var if_warmup = 1;
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 console.log("Timer in Step 1 fired");    
                 clearTimeout(timer);
-                missed1[TrialNum-1] = 1;
+                missed1[pre_tr+TrialNum-1] = 1;
                 Step_MissedIt(TrialNum);
             }, wait);
         };
@@ -584,28 +690,28 @@ var if_warmup = 1;
             if (k === 70){
                 $("body").off("keydown");
                 //                alert( "N 1 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 if (A1_left) {
-                    Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 1;
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 2;
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
             } else if (k === 74) {
                 $("body").off("keydown");
                 //                alert( "N 2 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off");
                 $("body").off("keydown");
                 if (A1_left) {
-                    Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 2;
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 1;
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
                 
             };            
@@ -617,60 +723,27 @@ var if_warmup = 1;
     // Sajjad
     // Step middle: showing which spaceship has been selected
     
-    function Step_m(TrialNum,level_2,left_html,right_html,k) {
-        // if level_2=1 -> S2, else if level_2=2 -> S3
-        console.log("Step_m");
-        console.log("level_m: " + level_2);
-                
-        if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
-            var html_In_plan = S2_html;
-        } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
-            var html_In_plan = S3_html;
-        };
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-      
-        ////////////////////// sub_stage_top ///////////////////////////////////
-        // Creat the bottom row for spaceships
-        CreateDiv('Stage', 'sub_stage_middle');
-        $('#sub_stage_middle').addClass('row');
-        $('#sub_stage_middle').css('height', thisHeight * 0.1);        
-        $('#sub_stage_middle').css('margin', 'auto');
-        
+    function Step_m(TrialNum, level_2, left_html, left_slc_html, right_html, right_slc_html,k) {
 
         if (k === 70){
-        // display Rocket 1
-        
-        CreateDiv('sub_stage_middle', 'id_rocket_left');
-        $('#id_rocket_left').addClass('col-xs-12');
-        $('#id_rocket_left').html(left_html);
-        $('#id_rocket_left').css('margin', 'auto');
-        $('#id_rocket_left').show()
-        
+        // display rectangle around reft Rocket 
+        $('#id_rocket_left').html(left_slc_html);
+        $('#sub_stage_bottom').html('');
         }
         else if (k === 74) {
-        // display Rocket 2
-
-         CreateDiv('sub_stage_middle', 'id_rocket_right');
-        $('#id_rocket_right').addClass('col-xs-12');
-        $('#id_rocket_right').html(right_html);
-        $('#id_rocket_right').css('margin', 'auto');
-        $('#id_rocket_right').show()       
-        
+        // display rectangle around right Rocket 
+        $('#id_rocket_right').html(right_slc_html);
+        $('#sub_stage_bottom').html('');
         }
+        
         setTimeout(function () { // wait between pages
         
             Step_2(TrialNum,level_2)
 
-        },2000);
+        },200);
 }
 
-    // Step 2: arrive at in planet, press space to use portal, once pressed move to stage 3
+    // Step 2: arrive at space spaceship, press space to use portal, once pressed move to stage 3
     function Step_2(TrialNum,level_2) {
         // if level_2=1 -> S2, else if level_2=2 -> S3
         console.log("Step_2");
@@ -684,10 +757,10 @@ var if_warmup = 1;
         $('#Bottom').css('min-height', thisHeight / 20);
                 
         if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S2_name + '</H2></div>';
             var html_In_plan = S2_html;
         } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S3_name + '</H2></div>';
             var html_In_plan = S3_html;
         };
 
@@ -704,7 +777,6 @@ var if_warmup = 1;
             $('#sub_stage_top').addClass('row');
             $('#sub_stage_top').css('height', thisHeight * 0.3);  
 
-        
         
             ////////////////////// sub_stage_middle ////////////////////////////////
             // some space between planet and portal 
@@ -756,7 +828,7 @@ var if_warmup = 1;
                         $("body").off("keydown"); // detaches the keydwon from our dear event 
                         console.log("Timer in Step 2");    
                         clearTimeout(timer);
-                        missed2[TrialNum-1] = 1;
+                        missed2[pre_tr+TrialNum-1] = 1;
                         Step_MissedIt(TrialNum);
                     }, wait);
                 };
@@ -769,7 +841,7 @@ var if_warmup = 1;
                     if (k ===32){
                         $("body").off("keydown");    
                         clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                        RT2[TrialNum-1] = (new Date()).getTime() - tic2;
+                        RT2[pre_tr+TrialNum-1] = (new Date()).getTime() - tic2;
                     
                         if (Transition[TrialNum] === 0 ){
                             if (level_2 === 1){ // if transition is zero level_2 => level_3 
@@ -831,11 +903,11 @@ var if_warmup = 1;
             } else {
                 if(level_3===1){
                     // S4
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S4_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S4_name + '</H2></div>';
                     var html_Ex_plan = S4_html;
                 } else {
                     // S5 
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S5_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S5_name + '</H2></div>';
                     var html_Ex_plan = S5_html;
                 };
             }
@@ -891,7 +963,7 @@ var if_warmup = 1;
                     $("body").off("keydown"); // detaches the keydwon from our dear event 
                     console.log("Timer in Step 3");
                     clearTimeout(timer);
-                    missed3[TrialNum-1] = 1;
+                    missed3[pre_tr+TrialNum-1] = 1;
                     Step_MissedIt(TrialNum);
                 }, wait);
             };
@@ -902,7 +974,7 @@ var if_warmup = 1;
                 $("body").off("keydown");
                 if (k ===32){
                     clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                    RT3[TrialNum-1] = (new Date()).getTime() - tic3;
+                    RT3[pre_tr+TrialNum-1] = (new Date()).getTime() - tic3;
                     rewarding ();
                 
                     // replace this by 
@@ -1084,7 +1156,7 @@ var if_warmup = 1;
         });
 
           if (if_warmup===1) {
-            Step_ShowQuestions();
+            Instructions(34,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
             Step_ShowData
           } 
@@ -1141,7 +1213,7 @@ var if_warmup = 1;
             Step_ShowQuestions();
         } else {
             // All questions are answered
-            alert('You have completed all the questions.');
+            //alert('You have completed all the questions.');
             Step_ShowData(ques_ans)
   
         }
@@ -1186,7 +1258,9 @@ var if_warmup = 1;
         Missed3: missed3,
         QuesAns: ques_ans,
         ReadyToMain: allCorrect,
-        PercRew: perc_rew
+        PercRew: perc_rew,
+        Timestamp: new Date().toISOString() // Save current date and time in ISO format
+
     };
 
 
@@ -1211,7 +1285,9 @@ var if_warmup = 1;
                                     Missed3     = [${outputData.Missed3}];<br>
                                     QuesAns     = [${outputData.QuesAns}];<br>
                                     ReadyToMain = [${outputData.ReadyToMain}];<br>
-                                    PercRew     = [${outputData.PercRew}]</p>`;
+                                    PercRew     = [${outputData.PercRew}];<br>
+                                    Timestamp   = [${outputData.Timestamp}]</p>`;
+
                                     
     // Sajjad: here you can eaither put outputHtml or message alone                                 
 
@@ -1221,7 +1297,8 @@ var if_warmup = 1;
         CreateDiv('Stage', 'TextBoxDiv');
     $('#TextBoxDiv').html(message);
     
-        downloadResponses(outputData)
+        //downloadResponses(outputData);
+        saveData(outputData);
 
     }
 
@@ -1236,14 +1313,39 @@ var if_warmup = 1;
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
     check_if_warmup(data.ReadyToMain);
+    }
+
+// saving in firestore 
+
+function saveData(outputData) {
+    // Get current date and time
+    const now = new Date();
+    const date = now.toLocaleDateString('en-GB').replace(/\//g, '_'); // e.g., "16-09-2024"
+    const time = now.toLocaleTimeString('en-GB').replace(/:/g, '_');  // e.g., "14-45-30"
+    
+    // Combine participant ID, date, and time
+    const customID = `${outputData.ID}_${date}_${time}`;  // e.g., "0001_16-09-2024_14-45-30"
+    
+    // Reference to the Firestore collection
+    const experimentCollection = db.collection("experiment_data");
+
+    // Add a new document with the custom ID
+    experimentCollection.doc(customID).set(outputData)
+        .then(() => {
+            console.log("Document written with custom ID: ", customID);
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+
+    check_if_warmup(outputData.ReadyToMain);
 }
+
+
+
 
     function check_if_warmup(ReadyToMain) {
     if (if_warmup===1 && ReadyToMain){
-        Instruct = false;
-          ////////////////////////////////////////////////////////////////////////////
-        var NumTrials = 5; // cant be more then 365
-          ////////////////////////////////////////////////////////////////////////////
         if_warmup=0;
         go_to_main()
     }
