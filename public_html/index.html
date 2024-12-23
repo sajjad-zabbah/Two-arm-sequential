@@ -12,8 +12,26 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script src="SpaceShipExperiment.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #Stage {
+            display: none; /* Initially hide the experiment stage */
+            width: 100%;
+            height: 100%;
+            background-color: lightblue; /* Temporary background */
+        }
+    </style>
+
 </head>
 <body>
+    <!-- A button to start the experiment -->
+    <button id="startExperiment" style="display: block; margin: 20px auto;">Start Experiment</button>
 
     <div class='Main' id='Main'>
         <div class='DivElements' id='Top'></div>

@@ -17,19 +17,41 @@ const firebaseConfig = {
     // Initialize Firestore
     const db = firebase.firestore();
 
+    function startFullscreen() {
+        const element = document.documentElement; // Makes the entire document fullscreen
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) { // Safari
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE11
+            element.msRequestFullscreen();
+        }
+    }
+
     // Initial Display Parameters
-    thisHeight = $(document).height() * .9;
-    thisWidth  = thisHeight * 4 / 3;
-    
-    DispWidth  = thisHeight * 5 / 6;
-    DispHeight = DispWidth / 2;
-    
-    ConfWidth  = thisHeight * 4 / 6;
-    ConfHeight = ConfWidth / 2;
+    function adjustLayout() {
+        const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
+        const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
+
+        const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
+        const DispHeight = DispWidth / 2;
+
+        const ConfWidth = thisHeight * 4 / 6;
+        const ConfHeight = ConfWidth / 2;
+
+        $('#Main').css({
+            'min-height': thisHeight,
+            'width': thisWidth
+        });
+        $('#Stage').css({
+            'width': DispWidth * 1.4,
+            'min-height': thisHeight * 17 / 20
+        });
+        $('#Top').css('height', thisHeight / 20);
+        $('#Bottom').css('min-height', thisHeight / 20);
+    }
 
 
-    $('#Main').css('min-height', thisHeight);
-    $('#Main').css('width', thisWidth);
     
     
     var S2 = [];
@@ -149,18 +171,26 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
     // CHOOSE TO IGNORE THE INTRODUCTION FUNCTIONS !
 
-    setTimeout(function () {
-        
-        Step_TakeID();
-        //	Step_1(TrialNum); // SKIP information sheet go to 
-        //        Information();//Start with information sheet
-    
-    },10);
-    
-    
+    document.getElementById('startExperiment').addEventListener('click', function () {
+        startFullscreen(); // Call the fullscreen function
+        $('#startExperiment').css('display', 'none'); // Hide the button
+
+        setTimeout(function () {
+
+            Step_TakeID();
+            //	Step_1(TrialNum); // SKIP information sheet go to
+            //        Information();//Start with information sheet
+
+        }, 10);
+
+    });
+
+
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
         console.log("Step_TakeID");
+
+        $('#Stage').css('display', 'block');
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', DispWidth * 1.4);
