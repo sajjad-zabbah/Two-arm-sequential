@@ -30,14 +30,6 @@ const firebaseConfig = {
 
     // Initial Display Parameters
     function adjustLayout() {
-        const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
-        const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
-
-        const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
-        const DispHeight = DispWidth / 2;
-
-        const ConfWidth = thisHeight * 4 / 6;
-        const ConfHeight = ConfWidth / 2;
 
         $('#Main').css({
             'min-height': thisHeight,
@@ -52,7 +44,14 @@ const firebaseConfig = {
     }
 
 
-    
+           const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
+        const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
+
+        const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
+        const DispHeight = DispWidth / 2;
+
+        const ConfWidth = thisHeight * 4 / 6;
+        const ConfHeight = ConfWidth / 2;
     
     var S2 = [];
     var S4 = [];
@@ -415,15 +414,15 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
     
     // first page show the first page of experiment, second page show the second and third pages 
     function Instructions(PageNum,ID) {
+        var NumPages = 33;//number of pages //13
+        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
+
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 18);
         //        $('#Stage').css('width', DispWidth + DispWidth*1/2);
         $('#Stage').css('width', DispWidth + DispWidth*.6);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
-
-        var NumPages = 33;//number of pages //13
-        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
 
@@ -546,13 +545,15 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
     // The actual experimment starts here
     function Step_pre_trial(TrialNum,ID) {
         console.log("Step_pre_trial");
-        $('#Stage').empty();
-        CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center"> Day starting in </H2></div>';
+      
+            
+            setTimeout(function(){
+                           $('#Stage').empty();
+             CreateDiv('Stage', 'TextBoxDiv')
+        var Title = '<div id = "Title"><H2 align = "center"> New day starts now </H2></div>';
         $('#TextBoxDiv').html(Title);
-        
-        CreateDiv('Stage', 'TextBoxDiv1');
-        
+            },1000);
+            
         Trial[pre_tr+TrialNum-1] = TrialNum;
         Action[pre_tr+TrialNum-1] = 0;
         RT1[pre_tr+TrialNum-1] = 0;
@@ -562,21 +563,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         missed2[pre_tr+TrialNum-1] = 0;
         missed3[pre_tr+TrialNum-1] = 0;
 
-        setTimeout(function () {
-            $('#TextBoxDiv1').html('<H1 align = "center">3</H1>');
-            setTimeout(function () {
-                $('#TextBoxDiv1').html('<H1 align = "center">2</H1>');
-                setTimeout(function () {
-                    $('#TextBoxDiv1').html('<H1 align = "center">1</H1>');
-                    setTimeout(function () {
-                        $('#TextBoxDiv1').empty();
-                        Step_0(TrialNum);//Start with the first trial
-                    }, wait_intro);
-                }, wait_intro);
-            }, wait_intro);
-        }, 200);
 
-    }
+      setTimeout(function () {
+          Step_0(TrialNum);//Start with the first trial
+      }, 3000);
+}
 
 
     // step_0 from where it choses which level to start from 
@@ -779,13 +770,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         console.log("Step_2");
         console.log("level_2: " + level_2);
 
-        //        debugger;
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-                
         if(level_2===1){
             var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S2_name + '</H2></div>';
             var html_In_plan = S2_html;
@@ -793,11 +777,18 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
             var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S3_name + '</H2></div>';
             var html_In_plan = S3_html;
         };
+        //        debugger;
+       
+    
 
         
         setTimeout(function () { // wait between pages 
 
-        
+            $('#Stage').empty();
+            $('#Top').css('height', thisHeight / 20);
+            $('#Stage').css('width', DispWidth * 1.4);
+            $('#Stage').css('min-height', thisHeight * 17 / 20);
+            $('#Bottom').css('min-height', thisHeight / 20);
             CreateDiv('Stage', 'TextBoxDiv');
             $('#TextBoxDiv').html(Title);
 
@@ -910,11 +901,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         // if level_3 1 then S4 if it is 2 then S5 
         
         console.log("Step_3");
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
 
         
         setTimeout(function () { // wait to creat a gap between pages 
@@ -944,7 +930,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
 
 
-
+            $('#Stage').empty();
+            $('#Top').css('height', thisHeight / 20);
+            $('#Stage').css('width', DispWidth * 1.4);
+            $('#Stage').css('min-height', thisHeight * 17 / 20);
+            $('#Bottom').css('min-height', thisHeight / 20);
             CreateDiv('Stage', 'TextBoxDiv');
             $('#TextBoxDiv').html(Title);
 
@@ -1249,7 +1239,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         }
     }
 }
-
 
     // stuff to be saved are here
     
