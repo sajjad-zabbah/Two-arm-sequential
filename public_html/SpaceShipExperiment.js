@@ -273,8 +273,14 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         var str1 = "Subj";
         var str2 = "_info_stim.json";
         
+        if (if_warmup ==0)
+    {
         var json_filename = str1.concat(ID);
         var json_filename = json_filename.concat(str2);
+    } else {
+        
+        var json_filename = "warmup_info_stim.json"
+    }
         
         //        console.log("Participant file name :" + json_filename);
 
