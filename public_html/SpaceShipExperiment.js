@@ -52,7 +52,10 @@ const firebaseConfig = {
 
         const ConfWidth = thisHeight * 4 / 6;
         const ConfHeight = ConfWidth / 2;
-    
+        
+    var attentionTrialnum=1;
+    var distCrit = 2;    
+    var distConfirmed = false;
     var S2 = [];
     var S4 = [];
     var A1 = [];
@@ -78,7 +81,7 @@ const firebaseConfig = {
     var missed2          = new Array;
     var missed3          = new Array;
     
-    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 0, currentQuestionIndex = 0;
 
     var NumTrials    = 0;
     var pre_tr       = 0;
@@ -243,9 +246,10 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
           trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
+           Instruct = false;
             ////////////////////////////////////////////////////////////////////////////
             pre_tr    = NumTrials; // num trials before warm up
-            NumTrials = 365; // cant be more then 365
+            NumTrials = 6; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
           wait            = 1100; // how many MILLISECONDS to wait befor saying you are too late 
@@ -570,9 +574,29 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         missed3[pre_tr+TrialNum-1] = 0;
 
 
+
+// check if participants pass the criterion of not missing specific number of NumTrials
+// after 20 trials, in each 10 trials they should not have more that 5 misses
+
+    if (TrialNum > attentionTrialnum) {
+        let missedLast10 = 0;
+        for (let i = pre_tr + TrialNum - 11; i < pre_tr + TrialNum - 1; i++) {
+            missedLast10 += (missed1[i] || 0) + (missed2[i] || 0) + (missed3[i] || 0);
+        }
+        console.log("Missed trials in the last 10 trials:", missedLast10);
+        if (missedLast10>distCrit) {
+          distConfirmed=true;
+        }
+    }
+
+// 
+if (distConfirmed) {
+            Step_End();
+}else{
       setTimeout(function () {
           Step_0(TrialNum);//Start with the first trial
       }, 3000);
+}
 }
 
 
@@ -1156,35 +1180,11 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         
-        
-        var Title = '<div id = "Title"><H2 align = "center"> You finished the experiment. </H2>\n\
-        <H2 align = "center"> Please dont close this page and call the experimenter </H2></div>';
-        
-        CreateDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').html(Title);
-        
-        // go to a page to show all the data 
-        
-        
-        $("body").on("keydown", function(e) {
-            var k = e.keyCode; // get the key code of what was pressed             
-            
-            // the one the left chosen 
-            if (k === 81){
-                $("body").off("keydown");
-                if (if_warmup===1) {
-                  Step_ShowQuestions();
-                } else { 
-                  Step_ShowData
-                } 
-            }                 
-            
-        });
 
           if (if_warmup===1) {
             Instructions(34,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
-            Step_ShowData
+            Step_ShowData();
           } 
     }
     
@@ -1288,15 +1288,6 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
     };
 
-
-    // Show message based on correctness of answers
-    var message;
-    if (allCorrect) {
-        message = '<H2 align="center">All responses are correct. <br> Now you can enter the main experiment.</H2>';
-    } else {
-        message = '<H2 align="center">You could not response to all questions correctly. <br> We need to say good bye to you and thank you for your participation.</H2>';
-    }
-
     // Display the message and the output data
     var outputHtml = `${message}<p>ID           = [${outputData.ID}];<br>
                                     Trial       = [${outputData.Trial}];<br>
@@ -1312,37 +1303,9 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                                     ReadyToMain = [${outputData.ReadyToMain}];<br>
                                     PercRew     = [${outputData.PercRew}];<br>
                                     Timestamp   = [${outputData.Timestamp}]</p>`;
-
-                                    
-    // Sajjad: here you can eaither put outputHtml or message alone                                 
-
-  //  CreateDiv('Stage', 'TextBoxDiv');
-  //  $('#TextBoxDiv').html(outputHtml);
     
-        CreateDiv('Stage', 'TextBoxDiv');
-    $('#TextBoxDiv').html(message);
-    
-        //downloadResponses(outputData);
-        saveData(outputData);
+//  saving in firestore
 
-    }
-
-// Function to handle response download
-    function downloadResponses(data) {
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    var downloadAnchorNode = document.createElement('a');
-    var filename = `responses_${data.ID}.json`; // Use ID in the filename
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", filename);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    check_if_warmup(data.ReadyToMain);
-    }
-
-// saving in firestore 
-
-function saveData(outputData) {
     // Get current date and time
     const now = new Date();
     const date = now.toLocaleDateString('en-GB').replace(/\//g, '_'); // e.g., "16-09-2024"
@@ -1362,20 +1325,49 @@ function saveData(outputData) {
         .catch((error) => {
             console.error("Error adding document: ", error);
         });
+        
+      
+// Show message based on correctness of answers
+    var message;
+    var finsihed = false;
+  if (if_warmup==1){
+    if (allCorrect) {
+        message =  '<H2 align="center">All responses are correct.</H2> \n\
+        <H3 align = "center"> Please read the instruction before starting the main experiment. </H3>';
+    } else {
+        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say good bye to you and thank          you for your participation.</H2> \n\
+        <H3 align = "center"> You will be paied for your time. </H3>' ;
+    }
+  } else {
+  if (!distConfirmed) {
+        message =  '<H2 align="center">Well Done!</H2> \n\
+        <H3 align = "center"> You succesfully finished the experiment. Thank you so much for your participation. You will be paied for         your time and also will recive some top up bases on your performance </H3>';
+        finsihed = true;
+  }else{
+        message = '<H2 align = "center"> You can not continue the experiment, </H2> \n\
+        <H3 align = "center"> becuase you missed a lot of trials. Thank you for your participation. </H3> \n\
+        <H4 align = "center"> You will be paid for your time and top up bounses for your performance </H4></div>'   
+        finsihed = true;
+  }
+}
+        
 
-    check_if_warmup(outputData.ReadyToMain);
+    
+        CreateDiv('Stage', 'TextBoxDiv');
+        $('#TextBoxDiv').html(message);
+
+    if (!finsihed && allCorrect){
+        if_warmup=0;
+        go_to_main();
+    }else {
+    clearTimeouts(); // Stop all pending timeouts if necessary
+    throw new Error("End of Experiment"); // Ensure no further code is executed
+
+    }
+    
 }
 
 
-
-
-    function check_if_warmup(ReadyToMain) {
-    if (if_warmup===1 && ReadyToMain){
-        if_warmup=0;
-        go_to_main()
-    }
-    }
-    
     function go_to_main(){
 
       var Buttons = '<div align="center"><input align="center" type="button"  class="btn btn-default" id="Start" value="Start!" ></div>';
@@ -1393,6 +1385,14 @@ function saveData(outputData) {
   }
     // the end 
 
+
+// Helper function to clear all timeouts
+function clearTimeouts() {
+    let id = setTimeout(() => {}, 0);
+    while (id--) {
+        clearTimeout(id); // Will clear all timeouts up to the last registered id
+    }
+}
     //Utility Functions
     function CreateDiv(ParentID, ChildID) {
 
