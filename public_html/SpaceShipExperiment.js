@@ -44,17 +44,23 @@ const firebaseConfig = {
     }
 
 
-           const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
-        const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
+    const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
+    const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
 
-        const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
-        const DispHeight = DispWidth / 2;
+    const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
+    const DispHeight = DispWidth / 2;
 
-        const ConfWidth = thisHeight * 4 / 6;
-        const ConfHeight = ConfWidth / 2;
-        
-    var attentionTrialnum=1;
-    var distCrit = 2;    
+    const ConfWidth = thisHeight * 4 / 6;
+    const ConfHeight = ConfWidth / 2;
+      
+    // ------------------------ set parameters 
+    
+    var attentionTrialnum=20;    // After this trial, we start checking if they pay enough attention we set it to 20
+    var distCrit = 10;           // If subject misses these number of trials they will be droped out 
+    var NumWarmUpTrials = 20;   // this warm up trials and should be 20 
+    var NumMainTrials   = 365;  // this is main trials and should be 365
+    // -----------------------
+    
     var distConfirmed = false;
     var S2 = [];
     var S4 = [];
@@ -235,7 +241,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
       if (if_warmup==1) {
             Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 20; // 
+            NumTrials = NumWarmUpTrials; // 
             pre_tr    = 0; // num trials before warm up
           ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
@@ -249,7 +255,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
            Instruct = false;
             ////////////////////////////////////////////////////////////////////////////
             pre_tr    = NumTrials; // num trials before warm up
-            NumTrials = 6; // cant be more then 365
+            NumTrials = NumMainTrials; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
           rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
           wait            = 1100; // how many MILLISECONDS to wait befor saying you are too late 
@@ -257,7 +263,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
           wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
           wait_break      = 30;   // how many SECONDS to wait for the break
           trial_break   	= 95  ; // every how many trials to have a break
-            if_warmup=0
+          if_warmup=0
         }
         
         if (ID>10) {
@@ -1079,7 +1085,6 @@ if (distConfirmed) {
         
         },200); // creating a gap between the screens  
 
-        
     }
     
     
@@ -1284,6 +1289,7 @@ if (distConfirmed) {
         QuesAns: ques_ans,
         ReadyToMain: allCorrect,
         PercRew: perc_rew,
+        Ifwarmup: if_warmup,
         Timestamp: new Date().toISOString() // Save current date and time in ISO format
 
     };
@@ -1335,24 +1341,22 @@ if (distConfirmed) {
         message =  '<H2 align="center">All responses are correct.</H2> \n\
         <H3 align = "center"> Please read the instruction before starting the main experiment. </H3>';
     } else {
-        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say good bye to you and thank          you for your participation.</H2> \n\
-        <H3 align = "center"> You will be paied for your time. </H3>' ;
+        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say goodbye to you and thank          you for your participation! </H2> \n\
+        <H3 align = "center"> You will be compensated for your time and effort. </H3>' ;
     }
   } else {
   if (!distConfirmed) {
         message =  '<H2 align="center">Well Done!</H2> \n\
-        <H3 align = "center"> You succesfully finished the experiment. Thank you so much for your participation. You will be paied for         your time and also will recive some top up bases on your performance </H3>';
+        <H3 align = "center"> You have successfully completed the experiment. Thank you for your participation! You will be compensated for your time, with an additional bonus based on your performance. </H3>';
         finsihed = true;
   }else{
         message = '<H2 align = "center"> You can not continue the experiment, </H2> \n\
-        <H3 align = "center"> becuase you missed a lot of trials. Thank you for your participation. </H3> \n\
-        <H4 align = "center"> You will be paid for your time and top up bounses for your performance </H4></div>'   
+        <H3 align = "center"> becuase you missed a lot of trials. Thank you for your participation! </H3> \n\
+        <H4 align = "center"> You will be compensated for your time, with an additional bonus based on your performance. </H4></di>'
         finsihed = true;
   }
 }
         
-
-    
         CreateDiv('Stage', 'TextBoxDiv');
         $('#TextBoxDiv').html(message);
 
