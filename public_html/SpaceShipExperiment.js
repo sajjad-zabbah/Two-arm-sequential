@@ -58,7 +58,7 @@ const firebaseConfig = {
     var attentionTrialnum=20;    // After this trial, we start checking if they pay enough attention we set it to 20
     var distCrit = 10;           // If subject misses these number of trials they will be droped out 
     var NumWarmUpTrials = 20;   // this warm up trials and should be 20 
-    var NumMainTrials   = 365;  // this is main trials and should be 365
+    var NumMainTrials   = 10;  // this is main trials and should be 365
     // -----------------------
     
     var distConfirmed = false;
@@ -193,20 +193,40 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 
     });
 
+function getNextSubjectID() {
+    // Retrieve last completed subject ID from local storage
 
+}
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
-        console.log("Step_TakeID");
+      
+    console.log("Step_TakeID");
+    
+    let lastCompletedID = localStorage.getItem("lastCompletedSubject");
 
-        $('#Stage').css('display', 'block');
+    if (lastCompletedID === null) {
+        ID =  "0001"; // First participant
+    } else {
+        let nextID = parseInt(lastCompletedID) + 1;
+        ID = nextID.toString().padStart(4, '0'); // Ensure 4-digit format
+    }
+    
+    
+        $('#Stage').css('display', 'block'); 
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', DispWidth * 1.4);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         
+         console.log(ID)
         
-        var Title = '<div id = "Title"><H2 align = "center"> Please enter the participant number and press space </H2></div>';
+    Step_setup(ID);
+
+
+        
+        
+      /*  var Title = '<div id = "Title"><H2 align = "center"> Please enter the participant number and press space </H2></div>';
         
         CreateDiv('Stage', 'TextBoxDiv');
         $('#TextBoxDiv').html(Title);
@@ -231,7 +251,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
                 $("body").off("keydown");
                 Step_setup($("input:text").val());
             };
-        });
+        }); */
     }
     
     
@@ -266,10 +286,10 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
           if_warmup=0
         }
         
-        if (ID>10) {
+     /*   if (ID>10) {
             alert('Please enter correct Subject number');
             Step_TakeID();
-        }
+        } 
         
         
         // make the subject id in to 0001 format 
@@ -277,7 +297,7 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         var str = "" + ID;
         var pad = "0000";
         var ID = pad.substring(0, pad.length - str.length) + str;
-        console.log("Participant number :" + ID);
+        console.log("Participant number :" + ID);*/
         Subject_ID = ID; 
 
         var str1 = "Subj";
@@ -1365,6 +1385,9 @@ if (distConfirmed) {
         go_to_main();
     }else {
     clearTimeouts(); // Stop all pending timeouts if necessary
+    
+    localStorage.setItem("lastCompletedSubject", Subject_ID); // record the sub num
+    
     throw new Error("End of Experiment"); // Ensure no further code is executed
 
     }
