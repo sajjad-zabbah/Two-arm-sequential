@@ -87,7 +87,7 @@ const firebaseConfig = {
     var missed2          = new Array;
     var missed3          = new Array;
     
-    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 0, currentQuestionIndex = 0;
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
 
     var NumTrials    = 0;
     var pre_tr       = 0;
