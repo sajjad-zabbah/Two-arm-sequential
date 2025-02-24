@@ -58,7 +58,7 @@ const firebaseConfig = {
     var attentionTrialnum=20;    // After this trial, we start checking if they pay enough attention we set it to 20
     var distCrit = 10;           // If subject misses these number of trials they will be droped out 
     var NumWarmUpTrials = 20;   // this warm up trials and should be 20 
-    var NumMainTrials   = 10;  // this is main trials and should be 365
+    var NumMainTrials   = 365;  // this is main trials and should be 365
     // -----------------------
     
     var distConfirmed = false;
@@ -91,6 +91,7 @@ const firebaseConfig = {
 
     var NumTrials    = 0;
     var pre_tr       = 0;
+    var ID           = "0000";
 
     // Creating the htmls for the objects that are always the same, those changing are set in Step_getdata
     var Earth_html          = '<img id = "id_Plan_Earth" src="images/Planet_Earth.png"        width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
@@ -186,32 +187,52 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
         setTimeout(function () {
 
             Step_TakeID();
-            //	Step_1(TrialNum); // SKIP information sheet go to
-            //        Information();//Start with information sheet
 
         }, 10);
 
     });
 
-function getNextSubjectID() {
-    // Retrieve last completed subject ID from local storage
+function getLastCompletedID() {
+    return db.collection("experiment_status") // Firestore collection name
+        .doc("lastCompleted") // A document that stores the last completed subject ID
+        .get()
+        .then((doc) => {
+            if (doc.exists) {
+                return doc.data().subjectID; // Get last completed subject ID
 
+            } else {
+                return "0000"; // If no record exists, start from 0
+            }
+        })
+        .catch((error) => {
+            console.error("Error getting last completed ID:", error);
+            return generateRandomID(); // in case could not find the file, it generate a random ID between 0 t0 10
+        });
+        
+}
+
+
+function generateRandomID() {
+    let randomID = Math.floor(Math.random() * 11); // Random number between 0 and 10
+    return randomID.toString().padStart(4, '0'); // Format as 4-digit string (e.g., "0000", "0005", "0010")
 }
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
       
-    console.log("Step_TakeID");
-    
-    let lastCompletedID = localStorage.getItem("lastCompletedSubject");
 
-    if (lastCompletedID === null) {
-        ID =  "0001"; // First participant
-    } else {
-        let nextID = parseInt(lastCompletedID) + 1;
-        ID = nextID.toString().padStart(4, '0'); // Ensure 4-digit format
-    }
-    
-    
+    console.log("Step_TakeID");
+
+    getLastCompletedID().then((lastID) => {
+        let ID = parseInt(lastID) + 1; // Assign next available subject ID
+        ID = ID.toString().padStart(4, '0');
+
+        console.log("Assigned Subject ID: " + ID);
+        
+        subjectID = ID;  // Ensure subjectID is set only after lastID is retrieved
+        console.log("Final Subject ID:", subjectID);
+        
+        markExperimentComplete(subjectID); // Only call this after getting lastID
+        
         $('#Stage').css('display', 'block'); 
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 20);
@@ -219,42 +240,23 @@ function getNextSubjectID() {
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         
-         console.log(ID)
-        
-    Step_setup(ID);
-
-
-        
-        
-      /*  var Title = '<div id = "Title"><H2 align = "center"> Please enter the participant number and press space </H2></div>';
-        
-        CreateDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').html(Title);
-        
-        ID_input_html = ' Participant number: <input type="text" name="fname" value="000">';
-        
-        // show the portal 
-        CreateDiv('Stage', 'sub_stage_top');
-        $('#sub_stage_top').addClass('row');
-        $('#sub_stage_top').css('height', DispWidth * 0.4);  
-        // dsiplay reward !  
-        CreateDiv('sub_stage_top', 'id_sad');
-        $('#id_sad').addClass('col-xs-12');
-        $('#id_sad').html(ID_input_html);
-        $('#id_sad').css('margin', 'auto');
-        $('#id_sad').show();
-        
-        // Key press
-        $( "body" ).keydown(function(e) {
-            var k = e.keyCode; // get the key code of what was pressed 
-            if (k ===32){
-                $("body").off("keydown");
-                Step_setup($("input:text").val());
-            };
-        }); */
+        Step_setup(subjectID); // Ensure Step_setup is called with the correct ID
+   });
+  
     }
     
-    
+    function markExperimentComplete(subjectID) {
+    db.collection("experiment_status")
+        .doc("lastCompleted")
+        .set({ subjectID: subjectID }) // Store the latest completed ID
+        .then(() => {
+            console.log("Experiment completed for subject:", subjectID);
+        })
+        .catch((error) => {
+            console.error("Error updating last completed ID:", error);
+        });
+    }
+
     function Step_setup(ID) {
         console.log("Step_getdata");
         
@@ -272,7 +274,7 @@ function getNextSubjectID() {
           trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
-           Instruct = false;
+           Instruct = true;
             ////////////////////////////////////////////////////////////////////////////
             pre_tr    = NumTrials; // num trials before warm up
             NumTrials = NumMainTrials; // cant be more then 365
@@ -286,18 +288,6 @@ function getNextSubjectID() {
           if_warmup=0
         }
         
-     /*   if (ID>10) {
-            alert('Please enter correct Subject number');
-            Step_TakeID();
-        } 
-        
-        
-        // make the subject id in to 0001 format 
-        ID = parseInt(ID);
-        var str = "" + ID;
-        var pad = "0000";
-        var ID = pad.substring(0, pad.length - str.length) + str;
-        console.log("Participant number :" + ID);*/
         Subject_ID = ID; 
 
         var str1 = "Subj";
@@ -450,7 +440,7 @@ function getNextSubjectID() {
     
     // first page show the first page of experiment, second page show the second and third pages 
     function Instructions(PageNum,ID) {
-        var NumPages = 33;//number of pages //13
+        var NumPages = 33;//number of pages //33
         var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         $('#Stage').empty();
@@ -1388,7 +1378,9 @@ if (distConfirmed) {
     
     localStorage.setItem("lastCompletedSubject", Subject_ID); // record the sub num
     
-    throw new Error("End of Experiment"); // Ensure no further code is executed
+        console.log(Subject_ID);
+
+     throw new Error("End of Experiment"); // Ensure no further code is executed
 
     }
     
