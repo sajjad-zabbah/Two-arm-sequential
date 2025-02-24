@@ -910,6 +910,7 @@ if (distConfirmed) {
                         clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                         RT2[pre_tr+TrialNum-1] = (new Date()).getTime() - tic2;
                     
+                    setTimeout(function () {  
                         if (Transition[TrialNum] === 0 ){
                             if (level_2 === 1){ // if transition is zero level_2 => level_3 
                                 // S4
@@ -927,7 +928,7 @@ if (distConfirmed) {
                                 Step_3(TrialNum,1);
                             }
                         }
-                    
+                    }, 300); // Delay of 1000ms (1 second) before moving to Step_3 
                     };
                 });
         
@@ -936,8 +937,8 @@ if (distConfirmed) {
             },300); // waiting for portal to open 
 
         },200); // // wait between pages 
-
         
+
 
     }
         
@@ -946,8 +947,6 @@ if (distConfirmed) {
     function Step_3(TrialNum,level_3) {
         // if level_3 1 then S4 if it is 2 then S5 
         
-        console.log("Step_3");
-
         
         setTimeout(function () { // wait to creat a gap between pages 
         
@@ -1037,7 +1036,6 @@ if (distConfirmed) {
             // Key press
             $( "body" ).keydown(function(e) {
                 var k = e.keyCode;          // get the key code of what was pressed 
-                $("body").off("keydown");
                 if (k ===32){
                     clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                     RT3[pre_tr+TrialNum-1] = (new Date()).getTime() - tic3;
