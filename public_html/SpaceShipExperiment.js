@@ -123,7 +123,7 @@ var questions = [
         ]
     },  // Q3
         {
-        text: "Which one is correct?",
+        text: "Which one is correct?", 
         answers: [
             { id: "answer1", text: "The amount of money in both planets changes periodically." },
             { id: "answer2", text: "Helium-purple planet always has more money." },
@@ -165,7 +165,7 @@ var questions = [
          {
         text: "Which one is correct regarding the amount of money on the planets?",
         answers: [
-            { id: "answer1", text: "One planet always has more money than the other." },
+            { id: "answer1", text: "For a given period of time, one planet has more money than the other. But it changes periodically." },
             { id: "answer2", text: "Planets sometimes have equal amount of money." },
             { id: "answer3", text: "The purple planet always has more money." }
         ]
@@ -1202,32 +1202,31 @@ if (distConfirmed) {
     }
     
 
-    function Step_ShowQuestions() {
+function Step_ShowQuestions() {
     console.log("Step_ShowQuestions");
     $('#Stage').empty();
 
     var currentQuestion = questions[currentQuestionIndex];
 
     // Construct the question and answers HTML
-    var questionHtml = `<div id="questionDiv">
-        <h2 align="center">${currentQuestion.text}</h2>`;
+    var questionHtml = `<div id="questionDiv" style="text-align:left; max-width: 600px; margin: auto;">
+        <h2 style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">${currentQuestion.text}</h2>`; // Left-aligned
 
     currentQuestion.answers.forEach(function(answer) {
         questionHtml += `
-            <div class="answer">
-                <input type="radio" id="${answer.id}" name="answer" value="${answer.text}">
-                <label for="${answer.id}">${answer.text}</label>
+            <div class="answer" style="margin: 10px 0; display: flex; align-items: center;">
+                <input type="radio" id="${answer.id}" name="answer" value="${answer.text}" style="transform: scale(1.5); margin-right: 10px;">
+                <label for="${answer.id}" style="font-size: 24px; cursor: pointer;">${answer.text}</label>
             </div>`;
     });
 
-    questionHtml += `<button class="submit-button" id="submit-button">Submit</button></div>`;
+    questionHtml += `<button class="submit-button" id="submit-button" style="font-size: 22px; padding: 10px 20px; margin-top: 20px;">Submit</button></div>`; 
 
     CreateDiv('Stage', 'QuestionBoxDiv');
     $('#QuestionBoxDiv').html(questionHtml);
 
     // Attach event listener for submit button click
-    $('#submit-button').on('click', submitAnswer)
-  
+    $('#submit-button').on('click', submitAnswer);
 }
 
 // Function to handle answer submission
