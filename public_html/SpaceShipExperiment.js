@@ -87,7 +87,7 @@ const firebaseConfig = {
     var missed2          = new Array;
     var missed3          = new Array;
     
-    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0;
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0; Instruct = true;
 
     var NumTrials    = 0;
     var pre_tr       = 0;
@@ -261,7 +261,6 @@ function generateRandomID() {
         console.log("Step_getdata");
         
       if (if_warmup==1) {
-            Instruct = true; 
           ////////////////////////////////////////////////////////////////////////////   
             NumTrials = NumWarmUpTrials; // 
             pre_tr    = 0; // num trials before warm up
@@ -274,7 +273,6 @@ function generateRandomID() {
           trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
-           Instruct = true;
             ////////////////////////////////////////////////////////////////////////////
             pre_tr    = NumTrials; // num trials before warm up
             NumTrials = NumMainTrials; // cant be more then 365
@@ -906,7 +904,8 @@ if (distConfirmed) {
                     
                     var k = e.keyCode; // get the key code of what was pressed 
                     if (k ===32){
-                        $("body").off("keydown");    
+                        $("body").off("keydown");  
+                        $('#sub_stage_bottom').empty(); // to clear the key instructions
                         clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                         RT2[pre_tr+TrialNum-1] = (new Date()).getTime() - tic2;
                     
@@ -1037,6 +1036,7 @@ if (distConfirmed) {
             $( "body" ).keydown(function(e) {
                 var k = e.keyCode;          // get the key code of what was pressed 
                 if (k ===32){
+                  $("body").off("keydown"); // Disable further key presses immediately
                     clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                     RT3[pre_tr+TrialNum-1] = (new Date()).getTime() - tic3;
                     rewarding ();
