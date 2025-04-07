@@ -28,24 +28,10 @@ const firebaseConfig = {
         }
     }
 
-    // Initial Display Parameters
-    function adjustLayout() {
-
-        $('#Main').css({
-            'min-height': thisHeight,
-            'width': thisWidth
-        });
-        $('#Stage').css({
-            'width': DispWidth * 1.4,
-            'min-height': thisHeight * 17 / 20
-        });
-        $('#Top').css('height', thisHeight / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-    }
 
 
-    const thisHeight = window.innerHeight * 0.9; // 90% of the viewport height
-    const thisWidth = window.innerWidth * 0.9;   // 90% of the viewport width
+const thisHeight = screen.height * 0.9;
+const thisWidth = screen.width * 0.9;
 
     const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
     const DispHeight = DispWidth / 2;
@@ -55,9 +41,9 @@ const firebaseConfig = {
       
     // ------------------------ set parameters 
     
-    var attentionTrialnum=20;    // After this trial, we start checking if they pay enough attention we set it to 20
+    var attentionTrialnum=2;    // After this trial, we start checking if they pay enough attention we set it to 20
     var distCrit = 10;           // If subject misses these number of trials they will be droped out 
-    var NumWarmUpTrials = 20;   // this warm up trials and should be 20 
+    var NumWarmUpTrials = 3;   // this warm up trials and should be 20 
     var NumMainTrials   = 365;  // this is main trials and should be 365
     // -----------------------
     
@@ -439,7 +425,7 @@ function generateRandomID() {
     // first page show the first page of experiment, second page show the second and third pages 
     function Instructions(PageNum,ID) {
         var NumPages = 33;//number of pages //33
-        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
+        var PicHeight = DispWidth *.8 ; // make this larger, perhaps are also change stage dimentions 
 
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 18);
@@ -514,7 +500,7 @@ function generateRandomID() {
         $('#Bottom').css('min-height', thisHeight / 20);
 
         var NumPages = 49;//number of pages 
-        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
+        var PicHeight = DispWidth *.90 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
 
@@ -530,7 +516,7 @@ function generateRandomID() {
 
         $('#Bottom').html(Buttons);
 
-        if (PageNum === 34) {
+        if (PageNum === 43) {
             $('#Back').hide();
         }
         ;
@@ -598,7 +584,7 @@ function generateRandomID() {
             missedLast10 += (missed1[i] || 0) + (missed2[i] || 0) + (missed3[i] || 0);
         }
         console.log("Missed trials in the last 10 trials:", missedLast10);
-        if (missedLast10>distCrit) {
+        if (missedLast10>=distCrit) {
           distConfirmed=true;
         }
     }
@@ -1197,6 +1183,7 @@ if (distConfirmed) {
           if (if_warmup===1) {
             Instructions(34,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
+            ques_ans = 0;
             Step_ShowData();
           } 
     }
@@ -1273,11 +1260,13 @@ function Step_ShowQuestions() {
     
     // Check the responses against the true answers
     var allCorrect = true;
+    if (if_warmup==1) {
     for (let i = 0; i < ques_ans.length; i++) {
         if (ques_ans[i] !== trueResponses[i]) {
             allCorrect = false;
             break;
         }
+    }
     }
 
     
@@ -1330,6 +1319,12 @@ function Step_ShowQuestions() {
     // Reference to the Firestore collection
     const experimentCollection = db.collection("experiment_data");
 
+
+for (const [key, value] of Object.entries(outputData)) {
+    if (value === undefined) {
+        console.warn(`⚠️ Undefined value detected: ${key}`);
+    }
+}
     // Add a new document with the custom ID
     experimentCollection.doc(customID).set(outputData)
         .then(() => {
