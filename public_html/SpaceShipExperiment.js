@@ -57,7 +57,7 @@ const firebaseConfig = {
     
     var attentionTrialnum=20;    // After this trial, we start checking if they pay enough attention we set it to 20
     var distCrit = 10;           // If subject misses these number of trials they will be droped out 
-    var NumWarmUpTrials = 20;   // this warm up trials and should be 20 
+    var NumWarmUpTrials = 30;   // this warm up trials and should be 20 
     var NumMainTrials   = 365;  // this is main trials and should be 365
     // -----------------------
     
