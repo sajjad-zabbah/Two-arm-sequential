@@ -43,8 +43,8 @@ const thisWidth = screen.width * 0.9;
     
     var attentionTrialnum=2;    // After this trial, we start checking if they pay enough attention we set it to 20
     var distCrit = 10;           // If subject misses these number of trials they will be droped out 
-    var NumWarmUpTrials = 30;   // this warm up trials and should be 20 
-    var NumMainTrials   = 365;  // this is main trials and should be 365
+    var NumWarmUpTrials = 5;   // this warm up trials and should be 20 
+    var NumMainTrials   = 5;  // this is main trials and should be 365
     // -----------------------
     
     var distConfirmed = false;
@@ -64,6 +64,7 @@ const thisWidth = screen.width * 0.9;
     var perc_rew         = [];
     var num_reward       = 0 ;
     var Subject_ID       = 0;
+    var Prolific_ID      = 0;
     var Action           = new Array;
     var RT1              = new Array;
     var RT2              = new Array;
@@ -165,18 +166,23 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
 ////////////////////////////////////////////////////////////////////////////////
 
     // CHOOSE TO IGNORE THE INTRODUCTION FUNCTIONS !
+document.getElementById('startExperiment').addEventListener('click', function () {
+    const prolificID = document.getElementById('prolificID').value.trim();
 
-    document.getElementById('startExperiment').addEventListener('click', function () {
-        startFullscreen(); // Call the fullscreen function
-        $('#startExperiment').css('display', 'none'); // Hide the button
+    if (prolificID === "") {
+        alert("Please enter your Prolific ID before starting.");
+        return;
+    }
 
-        setTimeout(function () {
+    Prolific_ID = prolificID; // Save it in your global variable
 
-            Step_TakeID();
+    startFullscreen(); // Enter fullscreen
+    $('#startContainer').hide(); // Hide both input and button together
 
-        }, 10);
-
-    });
+    setTimeout(function () {
+        Step_TakeID(); // Start your experiment from here
+    }, 10);
+});
 
 function getLastCompletedID() {
     return db.collection("experiment_status") // Firestore collection name
@@ -1286,6 +1292,7 @@ function Step_ShowQuestions() {
         ReadyToMain: allCorrect,
         PercRew: perc_rew,
         Ifwarmup: if_warmup,
+        Prolific_ID: Prolific_ID,
         Timestamp: new Date().toISOString() // Save current date and time in ISO format
 
     };
@@ -1372,7 +1379,7 @@ for (const [key, value] of Object.entries(outputData)) {
     
         console.log(Subject_ID);
 
-     throw new Error("End of Experiment"); // Ensure no further code is executed
+        window.location.href = "https://app.prolific.com/submissions/complete?cc=CZU8JSCA";
 
     }
     
