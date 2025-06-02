@@ -1394,7 +1394,7 @@ setTimeout(function () {
 
     }
     
-}
+
 
 
     function go_to_main(){
