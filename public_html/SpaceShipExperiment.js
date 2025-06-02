@@ -1352,36 +1352,45 @@ for (const [key, value] of Object.entries(outputData)) {
         message =  '<H2 align="center">All responses are correct.</H2> \n\
         <H3 align = "center"> Please read the instruction before starting the main experiment. </H3>';
     } else {
-        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say goodbye to you and thank          you for your participation! </H2> \n\
-        <H3 align = "center"> You will be compensated for your time and effort. </H3>' ;
+        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say goodbye to you and thank you for your participation! </H2> \n\
+        <H3 align = "center"> You will be compensated for your time and effort. \n\
+         You will be automatically redirected to Prolific after 10 seconds,, where you will receive your completion code.</H3>' ;
+        finsihed = true;
     }
   } else {
   if (!distConfirmed) {
         message =  '<H2 align="center">Well Done!</H2> \n\
-        <H3 align = "center"> You have successfully completed the experiment. Thank you for your participation! You will be compensated for your time, with an additional bonus based on your performance. </H3>';
+        <H3 align = "center"> You have successfully completed the experiment. Thank you for your participation! You will be compensated for your time, with an additional bonus based on your performance.\n\
+        You will be automatically redirected to Prolific after 10 seconds, where you will receive your completion code. </H3>';
         finsihed = true;
   }else{
         message = '<H2 align = "center"> You can not continue the experiment, </H2> \n\
         <H3 align = "center"> becuase you missed a lot of trials. Thank you for your participation! </H3> \n\
-        <H4 align = "center"> You will be compensated for your time, with an additional bonus based on your performance. </H4></di>'
+        <H4 align = "center"> You will be compensated for your time, with an additional bonus based on your performance.\n\
+         You will be automatically redirected to Prolific after 10 seconds,, where you will receive your completion code.</H4></di>'
         finsihed = true;
   }
 }
-        
-        CreateDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').html(message);
 
-    if (!finsihed && allCorrect){
-        if_warmup=0;
+CreateDiv('Stage', 'TextBoxDiv');
+$('#TextBoxDiv').html(message);
+
+// Delay the next block by 10 seconds (10,000 milliseconds)
+setTimeout(function () {
+    if (!finsihed && allCorrect) {
+        if_warmup = 0;
         go_to_main();
-    }else {
-    clearTimeouts(); // Stop all pending timeouts if necessary
-    
-    localStorage.setItem("lastCompletedSubject", Subject_ID); // record the sub num
-    
+    } else {
+        clearTimeouts(); // Stop all pending timeouts if necessary
+
+        localStorage.setItem("lastCompletedSubject", Subject_ID); // record the sub num
+
         console.log(Subject_ID);
 
+        // Redirect to Prolific
         window.location.href = "https://app.prolific.com/submissions/complete?cc=CZU8JSCA";
+    }
+}, 10000); // 10,000 ms = 10 seconds
 
     }
     
