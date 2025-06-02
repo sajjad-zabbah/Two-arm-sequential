@@ -30,8 +30,13 @@
 
 </head>
 <body>
-    <!-- A button to start the experiment -->
-    <button id="startExperiment" style="display: block; margin: 20px auto;">Start Experiment</button>
+<!-- Input field + button inside a container -->
+<div id="startContainer" style="text-align: center; margin-top: 100px;">
+    <label for="prolificID" style="font-size: 18px;">Please enter your Prolific ID:</label><br>
+    <input type="text" id="prolificID" name="prolificID" placeholder="e.g., 5f8a2b3c123abc0012d3456e" 
+           style="margin: 10px; padding: 8px; width: 280px; font-size: 16px;"><br>
+    <button id="startExperiment" class="btn btn-primary" style="font-size: 16px;">Start Experiment</button>
+</div>
 
     <div class='Main' id='Main'>
         <div class='DivElements' id='Top'></div>

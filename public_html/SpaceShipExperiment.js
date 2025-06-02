@@ -165,37 +165,26 @@ const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'a
    
 ////////////////////////////////////////////////////////////////////////////////
 
-// Function to get Prolific ID from URL
-function getProlificIDFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('PROLIFIC_PID');
-}
 
-// Try to get it on load
-const prolificIDFromURL = getProlificIDFromURL();
-if (prolificIDFromURL) {
-    // Pre-fill the input box if it's there
-    document.addEventListener("DOMContentLoaded", function () {
-        const input = document.getElementById('prolificID');
-        if (input) input.value = prolificIDFromURL;
 
-        // Optionally set it globally
-        Prolific_ID = prolificIDFromURL;
-    });
-}
+    // CHOOSE TO IGNORE THE INTRODUCTION FUNCTIONS !
+document.getElementById('startExperiment').addEventListener('click', function () {
+    const prolificID = document.getElementById('prolificID').value.trim();
 
-  document.getElementById('startExperiment').addEventListener('click', function () {
-        startFullscreen(); // Call the fullscreen function
-        $('#startExperiment').css('display', 'none'); // Hide the button
+    if (prolificID === "") {
+        alert("Please enter your Prolific ID before starting.");
+        return;
+    }
 
-        setTimeout(function () {
+    Prolific_ID = prolificID; // Save it in your global variable
 
-            Step_TakeID();
+    startFullscreen(); // Enter fullscreen
+    $('#startContainer').hide(); // Hide both input and button together
 
-        }, 10);
-
-    });
-    
+    setTimeout(function () {
+        Step_TakeID(); // Start your experiment from here
+    }, 10);
+});
 
 function getLastCompletedID() {
     return db.collection("experiment_status") // Firestore collection name
