@@ -1,19 +1,48 @@
+
 <!DOCTYPE html>
 <html>
-    <head>
+<head>
     <title>Experiment</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media = "screen"/>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="SpaceShipExperiment.js"></script>
-  </head>
-  <body>
-  
-  <div class ='Main' id = 'Main'>
-            <div class = 'DivElements' id = 'Top'></div>
-            <div class ='DivElements' id = 'Stage'> </div>
-            <div class ='DivElements' id = 'Bottom'> </div>
-   </div>
- 
-  </body>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel='stylesheet' type='text/css' href='SpaceShipExperiment.css' media="screen" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Firebase 8.x.x UMD scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script src="SpaceShipExperiment.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #Stage {
+            display: none; /* Initially hide the experiment stage */
+            width: 80%;
+            height: 80%;
+            background-color: lightblue; /* Temporary background */
+        }
+    </style>
+
+</head>
+<body>
+<!-- Input field + button inside a container -->
+<div id="startContainer" style="text-align: center; margin-top: 100px;">
+    <label for="prolificID" style="font-size: 18px;">Please enter your Prolific ID:</label><br>
+    <input type="text" id="prolificID" name="prolificID" placeholder="e.g., 5f8a2b3c123abc0012d3456e" 
+           style="margin: 10px; padding: 8px; width: 280px; font-size: 16px;"><br>
+    <button id="startExperiment" class="btn btn-primary" style="font-size: 16px;">Start Experiment</button>
+</div>
+
+    <div class='Main' id='Main'>
+        <div class='DivElements' id='Top'></div>
+        <div class='DivElements' id='Stage'></div>
+        <div class='DivElements' id='Bottom'></div>
+    </div>
+
+</body>
 </html>

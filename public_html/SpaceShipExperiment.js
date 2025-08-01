@@ -1,20 +1,53 @@
 $(document).ready(function () {
+  
+  // Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB36apXiwt_7LOSQKSfEIpFR1an31rPd7Y",
+    authDomain: "two-arm-sequential.firebaseapp.com",
+    projectId: "two-arm-sequential",
+    storageBucket: "two-arm-sequential.appspot.com",
+    messagingSenderId: "298233810811",
+    appId: "1:298233810811:web:fe25db970e55d1057077de",
+    measurementId: "G-4V7MBYDGMV"
+};
 
-    // Initial Display Parameters
-    thisHeight = $(document).height() * .9;
-    thisWidth  = thisHeight * 4 / 3;
-    
-    DispWidth  = thisHeight * 5 / 6;
-    DispHeight = DispWidth / 2;
-    
-    ConfWidth  = thisHeight * 4 / 6;
-    ConfHeight = ConfWidth / 2;
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firestore
+    const db = firebase.firestore();
+
+    function startFullscreen() {
+        const element = document.documentElement; // Makes the entire document fullscreen
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) { // Safari
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE11
+            element.msRequestFullscreen();
+        }
+    }
 
 
-    $('#Main').css('min-height', thisHeight);
-    $('#Main').css('width', thisWidth);
+
+const thisHeight = screen.height * 0.9;
+const thisWidth = screen.width * 0.9;
+
+    const DispWidth = thisHeight * 5 / 6; // Set display width dynamically
+    const DispHeight = DispWidth / 2;
+
+    const ConfWidth = thisHeight * 4 / 6;
+    const ConfHeight = ConfWidth / 2;
+      
+    // ------------------------ set parameters 
     
+    var attentionTrialnum=2;    // After this trial, we start checking if they pay enough attention we set it to 20
+    var distCrit = 10;           // If subject misses these number of trials they will be droped out 
+    var NumWarmUpTrials = 30;   // this warm up trials and should be 20 
+    var NumMainTrials   = 365;  // this is main trials and should be 365
+    // -----------------------
     
+    var distConfirmed = false;
     var S2 = [];
     var S4 = [];
     var A1 = [];
@@ -31,6 +64,7 @@ $(document).ready(function () {
     var perc_rew         = [];
     var num_reward       = 0 ;
     var Subject_ID       = 0;
+    var Prolific_ID      = 0;
     var Action           = new Array;
     var RT1              = new Array;
     var RT2              = new Array;
@@ -40,14 +74,18 @@ $(document).ready(function () {
     var missed2          = new Array;
     var missed3          = new Array;
     
-    var NumTrials        = 0;
+    var wait_intro, rew_duration, wait, wait_missedit, wait_break, trial_break, if_warmup = 1, currentQuestionIndex = 0; Instruct = true;
 
+    var NumTrials    = 0;
+    var pre_tr       = 0;
+    var ID           = "0000";
 
     // Creating the htmls for the objects that are always the same, those changing are set in Step_getdata
     var Earth_html          = '<img id = "id_Plan_Earth" src="images/Planet_Earth.png"        width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
     var Portal_html         = '<img id = "id_portal"  src="images/Portal.gif "                width = "' + thisHeight * 0.3 + '"  class="img-responsive center-block" >'; // non rotating portal 
     var portal_rotate_html  = '<img id = "id_portal"  src="images/Portal_rotating.gif "       width = "' + thisHeight * 0.3 + '"  class="img-responsive center-block" >';
     var Sad_Face_html       = '<img id = "id_Sad_Face" src="images/Sad.png"                   width = "' + thisHeight * 0.4 + '"  class="img-responsive center-block" >';
+
 
 
 
@@ -58,25 +96,25 @@ var questions = [
     {
         text: "Which one represents the sequence of a full journey?",
         answers: [
-            { id: "answer1", text: "Earth – Spaceship – Space station – Alien planet " },
-            { id: "answer2", text: "Earth – Space station – Alien planet – Spaceship" },
-            { id: "answer3", text: "Earth – Alien planet  – Space station – Spaceshi" }
+            { id: "answer1", text: "Earth, Spaceship, Space station, Alien planet " },
+            { id: "answer2", text: "Earth, Space station, Alien planet, Spaceship" },
+            { id: "answer3", text: "Earth, Alien planet,  Space station, Spaceship" }
         ]
     },   // Q2
     {
         text: "When do you need to press space?",
         answers: [
-            { id: "answer1", text: "Collecting money at the alien planet." },
-            { id: "answer2", text: "Entering the portal." },
-            { id: "answer3", text: "Both of the above." }
+            { id: "answer1", text: "For collecting money at the alien planet." },
+            { id: "answer2", text: "For entering the portal." },
+            { id: "answer3", text: "For both of the above." }
         ]
     },  // Q3
         {
-        text: "Which one is correct?",
+        text: "Which one is correct?", 
         answers: [
-            { id: "answer1", text: "Helium-brown planet always has more money." },
+            { id: "answer1", text: "The amount of money in both planets changes periodically." },
             { id: "answer2", text: "Helium-purple planet always has more money." },
-            { id: "answer3", text: "The amount of money in both planets changes periodically." }
+            { id: "answer3", text: "Helium-brown planet always has more money." }
         ]
     },  // Q4
         {
@@ -91,8 +129,8 @@ var questions = [
         text: "Consider one spaceship. Which one is correct?",
         answers: [
             { id: "answer1", text: "It always goes to the same space station." },
-            { id: "answer2", text: "Its space station destination is random." },
-            { id: "answer3", text: "Its space station destination will change periodically." }
+            { id: "answer2", text: "Its space station destination will change periodically." },
+            { id: "answer3", text: "Its space station destination is random." }
         ]
     },  // Q6
         {
@@ -114,115 +152,147 @@ var questions = [
          {
         text: "Which one is correct regarding the amount of money on the planets?",
         answers: [
-            { id: "answer1", text: "One planet always has more money than the other." },
+            { id: "answer1", text: "For a given period of time, one planet has more money than the other. But it changes periodically." },
             { id: "answer2", text: "Planets sometimes have equal amount of money." },
             { id: "answer3", text: "The purple planet always has more money." }
         ]
     }
 ];
 
-// true responses
-const trueResponses = ['answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3', 'answer3'];
+// true responses.      Q1      , Q2       ,  Q3      , Q4.      ,  Q5      , Q6       ,  Q7      , Q8
+const trueResponses = ['answer1', 'answer3', 'answer1', 'answer2', 'answer1', 'answer3', 'answer1', 'answer1'];
 
-var currentQuestionIndex = 0;
-       // if warm_up 
-var if_warmup = 1; 
    
 ////////////////////////////////////////////////////////////////////////////////
 
+
+
     // CHOOSE TO IGNORE THE INTRODUCTION FUNCTIONS !
+document.getElementById('startExperiment').addEventListener('click', function () {
+    const prolificID = document.getElementById('prolificID').value.trim();
+
+    if (prolificID === "") {
+        alert("Please enter your Prolific ID before starting.");
+        return;
+    }
+
+    Prolific_ID = prolificID; // Save it in your global variable
+
+    startFullscreen(); // Enter fullscreen
+    $('#startContainer').hide(); // Hide both input and button together
 
     setTimeout(function () {
+        Step_TakeID(); // Start your experiment from here
+    }, 10);
+});
+
+function getLastCompletedID() {
+    return db.collection("experiment_status") // Firestore collection name
+        .doc("lastCompleted") // A document that stores the last completed subject ID
+        .get()
+        .then((doc) => {
+            if (doc.exists) {
+                return doc.data().subjectID; // Get last completed subject ID
+
+            } else {
+                return "0000"; // If no record exists, start from 0
+            }
+        })
+        .catch((error) => {
+            console.error("Error getting last completed ID:", error);
+            return generateRandomID(); // in case could not find the file, it generate a random ID between 0 t0 10
+        });
         
-        Step_TakeID();
-        //	Step_1(TrialNum); // SKIP information sheet go to 
-        //        Information();//Start with information sheet
-    
-    },10);
-    
-////////////////////////////////////////////////////////////////////////////
-    var rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
-    var wait            = 1000; // how many MILLISECONDS to wait befor saying you are too late 
-    var wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
-    var wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
-    var wait_break      = 30;   // how many SECONDS to wait for the break
-    var trial_break   	= 95  ; // every how many trials to have a break
-    
+}
+
+
+function generateRandomID() {
+    let randomID = Math.floor(Math.random() * 11); // Random number between 0 and 10
+    return randomID.toString().padStart(4, '0'); // Format as 4-digit string (e.g., "0000", "0005", "0010")
+}
 /////////////////////////////////////////// start of the experiment 
     function Step_TakeID() {
-        console.log("Step_TakeID");
+      
+
+    console.log("Step_TakeID");
+
+    getLastCompletedID().then((lastID) => {
+        let ID = parseInt(lastID) + 1; // Assign next available subject ID
+        ID = ID.toString().padStart(4, '0');
+
+        console.log("Assigned Subject ID: " + ID);
+        
+        subjectID = ID;  // Ensure subjectID is set only after lastID is retrieved
+        console.log("Final Subject ID:", subjectID);
+        
+        markExperimentComplete(subjectID); // Only call this after getting lastID
+        
+        $('#Stage').css('display', 'block'); 
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', DispWidth * 1.4);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         
-        
-        var Title = '<div id = "Title"><H2 align = "center"> Please enter the participant number and press space </H2></div>';
-        
-        CreateDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').html(Title);
-        
-        ID_input_html = ' Participant number: <input type="text" name="fname" value="000">';
-        
-        // show the portal 
-        CreateDiv('Stage', 'sub_stage_top');
-        $('#sub_stage_top').addClass('row');
-        $('#sub_stage_top').css('height', DispWidth * 0.4);  
-        // dsiplay reward !  
-        CreateDiv('sub_stage_top', 'id_sad');
-        $('#id_sad').addClass('col-xs-12');
-        $('#id_sad').html(ID_input_html);
-        $('#id_sad').css('margin', 'auto');
-        $('#id_sad').show();
-        
-        // Key press
-        $( "body" ).keydown(function(e) {
-            var k = e.keyCode; // get the key code of what was pressed 
-            if (k ===32){
-                $("body").off("keydown");
-                Step_setup($("input:text").val());
-            };
-        });
+        Step_setup(subjectID); // Ensure Step_setup is called with the correct ID
+   });
+  
     }
     
-    
+    function markExperimentComplete(subjectID) {
+    db.collection("experiment_status")
+        .doc("lastCompleted")
+        .set({ subjectID: subjectID }) // Store the latest completed ID
+        .then(() => {
+            console.log("Experiment completed for subject:", subjectID);
+        })
+        .catch((error) => {
+            console.error("Error updating last completed ID:", error);
+        });
+    }
+
     function Step_setup(ID) {
         console.log("Step_getdata");
         
       if (if_warmup==1) {
-            Instruct = true 
           ////////////////////////////////////////////////////////////////////////////   
-            NumTrials = 10; // cant be more then 365
+            NumTrials = NumWarmUpTrials; // 
+            pre_tr    = 0; // num trials before warm up
           ////////////////////////////////////////////////////////////////////////////
+          rew_duration    = 3000; // how many MILLISECONDS to show the reward for 
+          wait            = 5000; // how many MILLISECONDS to wait befor saying you are too late (Time to reply)
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
         }
         else {
-          Instruct = false
             ////////////////////////////////////////////////////////////////////////////
-            NumTrials = 10; // cant be more then 365
+            pre_tr    = NumTrials; // num trials before warm up
+            NumTrials = NumMainTrials; // cant be more then 365
             ////////////////////////////////////////////////////////////////////////////
-            if_warmup=0
+          rew_duration    = 1200; // how many MILLISECONDS to show the reward for 
+          wait            = 1100; // how many MILLISECONDS to wait befor saying you are too late 
+          wait_intro      = 350;  // how many MILLISECONDS show each digit (1 , 2 , 3 !) shows on the screen 
+          wait_missedit   = 1000; // how many MILLISECONDS to wait in missed it page 
+          wait_break      = 30;   // how many SECONDS to wait for the break
+          trial_break   	= 95  ; // every how many trials to have a break
+          if_warmup=0
         }
         
-        if (ID>10) {
-            alert('Please enter correct Subject number');
-            Step_TakeID();
-        }
-        
-        
-        // make the subject id in to 0001 format 
-        ID = parseInt(ID);
-        var str = "" + ID;
-        var pad = "0000";
-        var ID = pad.substring(0, pad.length - str.length) + str;
-        console.log("Participant number :" + ID);
         Subject_ID = ID; 
 
         var str1 = "Subj";
         var str2 = "_info_stim.json";
         
+        if (if_warmup ==0)
+    {
         var json_filename = str1.concat(ID);
         var json_filename = json_filename.concat(str2);
+    } else {
+        
+        var json_filename = "warmup_info_stim.json"
+    }
         
         //        console.log("Participant file name :" + json_filename);
 
@@ -279,13 +349,12 @@ var if_warmup = 1;
               }
             } else if (if_warmup===1){
                     if (S2 === 0)    {
-                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 3';
-                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 4';
+                  S2_Img = 'SpaceStation_3.png';      S2_name = 'Space Station 1';
+                  S3_Img = 'SpaceStation_4.png';      S3_name = 'Space Station 2';
               }    else if (S2 === 1)  {
-                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 3';
-                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 4';
+                  S3_Img = 'SpaceStation_3.png';      S3_name = 'Space Station 1';
+                  S2_Img = 'SpaceStation_4.png';      S2_name = 'Space Station 2';
               }
-                
             };
     
             // Get EXtragalactic planet images
@@ -310,19 +379,28 @@ var if_warmup = 1;
             // Get spaceship images 
             if (if_warmup===0) {
               if (A1 === 0)   {
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
+                  A1_Img = 'SpaceShip_B.png'; A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_R.png'; A2_name = 'Red SpaceShipt';
+                  A1_Img_select = 'SpaceShip_B_Selected.png';
+                  A2_Img_select = 'SpaceShip_R_Selected.png';
+
               }    else if (A1 === 1) {
-                  A2_Img = 'SpaceShip_R.png';    A2_name = 'Red SpaceShipt';
-                  A1_Img = 'SpaceShip_B.png';    A1_name = 'Black SpaceShipt';
+                  A2_Img = 'SpaceShip_B.png'; A2_name = 'Black SpaceShipt';
+                  A1_Img = 'SpaceShip_R.png'; A1_name = 'Red SpaceShipt';
+                  A2_Img_select = 'SpaceShip_B_Selected.png';
+                  A1_Img_select = 'SpaceShip_R_Selected.png';
               }
             } else if (if_warmup===1){
               if (A1 === 0)   {
                   A1_Img = 'SpaceShip_L.png';    A1_name = 'Blue SpaceShipt';
                   A2_Img = 'SpaceShip_G.png';    A2_name = 'Green SpaceShipt';
+                  A1_Img_select = 'SpaceShip_L_Selected.png';
+                  A2_Img_select = 'SpaceShip_G_Selected.png';
               }    else if (A1 === 1) {
                   A2_Img = 'SpaceShip_L.png';    A2_name = 'Blue SpaceShipt';
                   A1_Img = 'SpaceShip_G.png';    A1_name = 'Green SpaceShipt';
+                  A2_Img_select = 'SpaceShip_L_Selected.png';
+                  A1_Img_select = 'SpaceShip_G_Selected.png';
               }
             };
         
@@ -336,13 +414,17 @@ var if_warmup = 1;
             S5_html     = '<img id = "id_Ex_plan_2" src="images/'  + S5_Img + '"  width = "' + thisHeight * 0.2 + '"  class="img-responsive center-block" >';
             A1_html     = '<img id = "id_rocket_1"  src="images/'  + A1_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
             A2_html     = '<img id = "id_rocket_2"  src="images/'  + A2_Img + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A1_slc_html = '<img id = "id_rocket_1"  src="images/'  + A1_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
+            A2_slc_html = '<img id = "id_rocket_2"  src="images/'  + A2_Img_select + '"  width = "' + thisHeight * 0.15 + '"  class="img-responsive center-block" >';
 
             
-            if (Instruct === true) {
+            if (Instruct === true && if_warmup===1) {
                 Instructions(1,ID); // perhaps should probably start with trial 1
-            } else {
-                Step_pre_trial(1,ID);
-            }   
+            } else if (Instruct === true && if_warmup===0) {
+                Instructions_main(43,ID);;
+            } else if (Instruct === false) {
+              Step_pre_trial(1);
+            }
         }
         
     }
@@ -350,15 +432,15 @@ var if_warmup = 1;
     
     // first page show the first page of experiment, second page show the second and third pages 
     function Instructions(PageNum,ID) {
+        var NumPages = 33;//number of pages //33
+        var PicHeight = DispWidth *.8 ; // make this larger, perhaps are also change stage dimentions 
+
         $('#Stage').empty();
         $('#Top').css('height', thisHeight / 18);
         //        $('#Stage').css('width', DispWidth + DispWidth*1/2);
         $('#Stage').css('width', DispWidth + DispWidth*.6);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
-
-        var NumPages = 32;//number of pages //13
-        var PicHeight = DispWidth *.85 ; // make this larger, perhaps are also change stage dimentions 
 
         // slides_set THE which instructions to show 
 
@@ -374,11 +456,11 @@ var if_warmup = 1;
 
         $('#Bottom').html(Buttons);
 
-        if (PageNum === 1) {
+        if (PageNum === 1 || PageNum>NumPages) {
             $('#Back').hide();
         }
         ;
-        if (PageNum === NumPages) {
+        if (PageNum === NumPages || PageNum>NumPages) {
             $('#Next').hide();
         }
         ;
@@ -405,46 +487,125 @@ var if_warmup = 1;
             $('#TextBoxDiv').remove();
             $('#Stage').empty();
             $('#Bottom').empty();
+            if (PageNum===NumPages) {
+               Step_pre_trial(1);
+            }
+            else 
+            { 
+              Step_ShowQuestions();
+            }
+        });
+        
+    }
+    
+     // first page show the first page of experiment, second page show the second and third pages 
+    function Instructions_main(PageNum,ID) {
+        $('#Stage').empty();
+        $('#Top').css('height', thisHeight / 18);
+        //        $('#Stage').css('width', DispWidth + DispWidth*1/2);
+        $('#Stage').css('width', DispWidth + DispWidth*.6);
+        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Bottom').css('min-height', thisHeight / 20);
+
+        var NumPages = 49;//number of pages 
+        var PicHeight = DispWidth *.90 ; // make this larger, perhaps are also change stage dimentions 
+
+        // slides_set THE which instructions to show 
+
+        CreateDiv('Stage', 'TextBoxDiv');
+        var Title = '<H2 align = "center">Instructions</H2>';
+        var ThisImage = '<div align = "center"><img src="images/' + slides_set + '_Slide' + PageNum + '.png" alt="house" height="' + PicHeight + '" align="center"></div>';
+        //        $('#TextBoxDiv').html(Title + ThisImage);
+        $('#TextBoxDiv').html(ThisImage);
+
+        var Buttons = '<div align="center"><input align="center" type="button"  class="btn btn-default" id="Back" value="Back" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Next" value="Next" >\n\
+                      <input align="center" type="button"  class="btn btn-default" id="Start" value="Start!" ></div>';
+
+        $('#Bottom').html(Buttons);
+
+        if (PageNum === 43) {
+            $('#Back').hide();
+        }
+        ;
+        if (PageNum === NumPages) {
+            $('#Next').hide();
+        }
+        ;
+        if (PageNum < NumPages) {
+            $('#Start').hide();
+        }
+        ;
+
+        $('#Back').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum - 1);
+        });
+
+        $('#Next').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            Instructions_main(PageNum + 1);
+        });
+
+        $('#Start').click(function () {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
             Step_pre_trial(1);
         });
         
     }
     
-    
     // The actual experimment starts here
     function Step_pre_trial(TrialNum,ID) {
         console.log("Step_pre_trial");
-        $('#Stage').empty();
-        CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center"> Day starting in </H2></div>';
+      
+            
+            setTimeout(function(){
+                           $('#Stage').empty();
+             CreateDiv('Stage', 'TextBoxDiv')
+        var Title = '<div id = "Title"><H2 align = "center"> New day starts now </H2></div>';
         $('#TextBoxDiv').html(Title);
-        
-        CreateDiv('Stage', 'TextBoxDiv1');
-        
-        Trial[TrialNum-1] = TrialNum;
-        Action[TrialNum-1] = 0;
-        RT1[TrialNum-1] = 0;
-        RT2[TrialNum-1] = 0;
-        RT3[TrialNum-1] = 0;
-        missed1[TrialNum-1] = 0;
-        missed2[TrialNum-1] = 0;
-        missed3[TrialNum-1] = 0;
+            },1000);
+            
+        Trial[pre_tr+TrialNum-1] = TrialNum;
+        Action[pre_tr+TrialNum-1] = 0;
+        RT1[pre_tr+TrialNum-1] = 0;
+        RT2[pre_tr+TrialNum-1] = 0;
+        RT3[pre_tr+TrialNum-1] = 0;
+        missed1[pre_tr+TrialNum-1] = 0;
+        missed2[pre_tr+TrialNum-1] = 0;
+        missed3[pre_tr+TrialNum-1] = 0;
 
-        setTimeout(function () {
-            $('#TextBoxDiv1').html('<H1 align = "center">3</H1>');
-            setTimeout(function () {
-                $('#TextBoxDiv1').html('<H1 align = "center">2</H1>');
-                setTimeout(function () {
-                    $('#TextBoxDiv1').html('<H1 align = "center">1</H1>');
-                    setTimeout(function () {
-                        $('#TextBoxDiv1').empty();
-                        Step_0(TrialNum);//Start with the first trial
-                    }, wait_intro);
-                }, wait_intro);
-            }, wait_intro);
-        }, 200);
 
+
+// check if participants pass the criterion of not missing specific number of NumTrials
+// after 20 trials, in each 10 trials they should not have more that 5 misses
+
+    if (TrialNum > attentionTrialnum) {
+        let missedLast10 = 0;
+        for (let i = pre_tr + TrialNum - 11; i < pre_tr + TrialNum - 1; i++) {
+            missedLast10 += (missed1[i] || 0) + (missed2[i] || 0) + (missed3[i] || 0);
+        }
+        console.log("Missed trials in the last 10 trials:", missedLast10);
+        if (missedLast10>=distCrit) {
+          distConfirmed=true;
+        }
     }
+
+// 
+if (distConfirmed) {
+            Step_End();
+}else{
+      setTimeout(function () {
+          Step_0(TrialNum);//Start with the first trial
+      }, 3000);
+}
+}
 
 
     // step_0 from where it choses which level to start from 
@@ -490,7 +651,7 @@ var if_warmup = 1;
 
         // the text
         CreateDiv('Stage', 'TextBoxDiv');
-        var Title = '<div id = "Title"><H2 align = "center">Choose a Rocket</H2></div>';
+        var Title = '<div id = "Title"><H2 align = "center">Choose a Spaceship</H2></div>';
         $('#TextBoxDiv').html(Title);
         
         
@@ -508,9 +669,13 @@ var if_warmup = 1;
         if (A1_left) {
             left_html  = A1_html;
             right_html = A2_html;
+            left_slc_html  = A1_slc_html;
+            right_slc_html = A2_slc_html;
         } else {
             left_html  = A2_html;
             right_html = A1_html;
+            left_slc_html = A2_slc_html;
+            right_slc_html = A1_slc_html;
         }
         
         // display Rocket 1
@@ -569,7 +734,7 @@ var if_warmup = 1;
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 console.log("Timer in Step 1 fired");    
                 clearTimeout(timer);
-                missed1[TrialNum-1] = 1;
+                missed1[pre_tr+TrialNum-1] = 1;
                 Step_MissedIt(TrialNum);
             }, wait);
         };
@@ -584,28 +749,28 @@ var if_warmup = 1;
             if (k === 70){
                 $("body").off("keydown");
                 //                alert( "N 1 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
                 $("body").off("keydown"); // detaches the keydwon from our dear event 
                 if (A1_left) {
-                    Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 1;
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 2;
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
             } else if (k === 74) {
                 $("body").off("keydown");
                 //                alert( "N 2 pressed ");
-                RT1[TrialNum-1] = (new Date()).getTime() - tic1;
+                RT1[pre_tr+TrialNum-1] = (new Date()).getTime() - tic1;
                 clearTimeout(timer); console.log("setTimeout: off");
                 $("body").off("keydown");
                 if (A1_left) {
-                    Action[TrialNum-1] = 2;
-                    Step_m(TrialNum,2,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 2;
+                    Step_m(TrialNum, 2, left_html, left_slc_html, right_html, right_slc_html,k);
                 } else {
-                    Action[TrialNum-1] = 1;
-                    Step_m(TrialNum,1,left_html,right_html,k); 
+                    Action[pre_tr+TrialNum-1] = 1;
+                    Step_m(TrialNum, 1, left_html, left_slc_html, right_html, right_slc_html,k);
                 }
                 
             };            
@@ -617,84 +782,51 @@ var if_warmup = 1;
     // Sajjad
     // Step middle: showing which spaceship has been selected
     
-    function Step_m(TrialNum,level_2,left_html,right_html,k) {
-        // if level_2=1 -> S2, else if level_2=2 -> S3
-        console.log("Step_m");
-        console.log("level_m: " + level_2);
-                
-        if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
-            var html_In_plan = S2_html;
-        } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
-            var html_In_plan = S3_html;
-        };
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-      
-        ////////////////////// sub_stage_top ///////////////////////////////////
-        // Creat the bottom row for spaceships
-        CreateDiv('Stage', 'sub_stage_middle');
-        $('#sub_stage_middle').addClass('row');
-        $('#sub_stage_middle').css('height', thisHeight * 0.1);        
-        $('#sub_stage_middle').css('margin', 'auto');
-        
+    function Step_m(TrialNum, level_2, left_html, left_slc_html, right_html, right_slc_html,k) {
 
         if (k === 70){
-        // display Rocket 1
-        
-        CreateDiv('sub_stage_middle', 'id_rocket_left');
-        $('#id_rocket_left').addClass('col-xs-12');
-        $('#id_rocket_left').html(left_html);
-        $('#id_rocket_left').css('margin', 'auto');
-        $('#id_rocket_left').show()
-        
+        // display rectangle around reft Rocket 
+        $('#id_rocket_left').html(left_slc_html);
+        $('#sub_stage_bottom').html('');
         }
         else if (k === 74) {
-        // display Rocket 2
-
-         CreateDiv('sub_stage_middle', 'id_rocket_right');
-        $('#id_rocket_right').addClass('col-xs-12');
-        $('#id_rocket_right').html(right_html);
-        $('#id_rocket_right').css('margin', 'auto');
-        $('#id_rocket_right').show()       
-        
+        // display rectangle around right Rocket 
+        $('#id_rocket_right').html(right_slc_html);
+        $('#sub_stage_bottom').html('');
         }
+        
         setTimeout(function () { // wait between pages
         
             Step_2(TrialNum,level_2)
 
-        },2000);
+        },200);
 }
 
-    // Step 2: arrive at in planet, press space to use portal, once pressed move to stage 3
+    // Step 2: arrive at space spaceship, press space to use portal, once pressed move to stage 3
     function Step_2(TrialNum,level_2) {
         // if level_2=1 -> S2, else if level_2=2 -> S3
         console.log("Step_2");
         console.log("level_2: " + level_2);
 
-        //        debugger;
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-                
         if(level_2===1){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S2_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S2_name + '</H2></div>';
             var html_In_plan = S2_html;
         } else if (level_2===2){
-            var Title = '<div id = "Title"><H2 align = "center"> You are on planet ' + S3_name + '</H2></div>';
+            var Title = '<div id = "Title"><H2 align = "center"> You are on  ' + S3_name + '</H2></div>';
             var html_In_plan = S3_html;
         };
+        //        debugger;
+       
+    
 
         
         setTimeout(function () { // wait between pages 
 
-        
+            $('#Stage').empty();
+            $('#Top').css('height', thisHeight / 20);
+            $('#Stage').css('width', DispWidth * 1.4);
+            $('#Stage').css('min-height', thisHeight * 17 / 20);
+            $('#Bottom').css('min-height', thisHeight / 20);
             CreateDiv('Stage', 'TextBoxDiv');
             $('#TextBoxDiv').html(Title);
 
@@ -704,7 +836,6 @@ var if_warmup = 1;
             $('#sub_stage_top').addClass('row');
             $('#sub_stage_top').css('height', thisHeight * 0.3);  
 
-        
         
             ////////////////////// sub_stage_middle ////////////////////////////////
             // some space between planet and portal 
@@ -756,7 +887,7 @@ var if_warmup = 1;
                         $("body").off("keydown"); // detaches the keydwon from our dear event 
                         console.log("Timer in Step 2");    
                         clearTimeout(timer);
-                        missed2[TrialNum-1] = 1;
+                        missed2[pre_tr+TrialNum-1] = 1;
                         Step_MissedIt(TrialNum);
                     }, wait);
                 };
@@ -767,10 +898,12 @@ var if_warmup = 1;
                     
                     var k = e.keyCode; // get the key code of what was pressed 
                     if (k ===32){
-                        $("body").off("keydown");    
+                        $("body").off("keydown");  
+                        $('#sub_stage_bottom').empty(); // to clear the key instructions
                         clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                        RT2[TrialNum-1] = (new Date()).getTime() - tic2;
+                        RT2[pre_tr+TrialNum-1] = (new Date()).getTime() - tic2;
                     
+                    setTimeout(function () {  
                         if (Transition[TrialNum] === 0 ){
                             if (level_2 === 1){ // if transition is zero level_2 => level_3 
                                 // S4
@@ -788,7 +921,7 @@ var if_warmup = 1;
                                 Step_3(TrialNum,1);
                             }
                         }
-                    
+                    }, 300); // Delay of 1000ms (1 second) before moving to Step_3 
                     };
                 });
         
@@ -797,8 +930,8 @@ var if_warmup = 1;
             },300); // waiting for portal to open 
 
         },200); // // wait between pages 
-
         
+
 
     }
         
@@ -807,13 +940,6 @@ var if_warmup = 1;
     function Step_3(TrialNum,level_3) {
         // if level_3 1 then S4 if it is 2 then S5 
         
-        console.log("Step_3");
-        $('#Stage').empty();
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', DispWidth * 1.4);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-
         
         setTimeout(function () { // wait to creat a gap between pages 
         
@@ -831,18 +957,22 @@ var if_warmup = 1;
             } else {
                 if(level_3===1){
                     // S4
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S4_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S4_name + '</H2></div>';
                     var html_Ex_plan = S4_html;
                 } else {
                     // S5 
-                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to ' + S5_name + '</H2></div>';
+                    var Title = '<div id = "Title"><H2 align = "center"> Portal took you to planet ' + S5_name + '</H2></div>';
                     var html_Ex_plan = S5_html;
                 };
             }
 
 
 
-
+            $('#Stage').empty();
+            $('#Top').css('height', thisHeight / 20);
+            $('#Stage').css('width', DispWidth * 1.4);
+            $('#Stage').css('min-height', thisHeight * 17 / 20);
+            $('#Bottom').css('min-height', thisHeight / 20);
             CreateDiv('Stage', 'TextBoxDiv');
             $('#TextBoxDiv').html(Title);
 
@@ -891,7 +1021,7 @@ var if_warmup = 1;
                     $("body").off("keydown"); // detaches the keydwon from our dear event 
                     console.log("Timer in Step 3");
                     clearTimeout(timer);
-                    missed3[TrialNum-1] = 1;
+                    missed3[pre_tr+TrialNum-1] = 1;
                     Step_MissedIt(TrialNum);
                 }, wait);
             };
@@ -899,10 +1029,10 @@ var if_warmup = 1;
             // Key press
             $( "body" ).keydown(function(e) {
                 var k = e.keyCode;          // get the key code of what was pressed 
-                $("body").off("keydown");
                 if (k ===32){
+                  $("body").off("keydown"); // Disable further key presses immediately
                     clearTimeout(timer); console.log("setTimeout: off"); // turn of the timer 
-                    RT3[TrialNum-1] = (new Date()).getTime() - tic3;
+                    RT3[pre_tr+TrialNum-1] = (new Date()).getTime() - tic3;
                     rewarding ();
                 
                     // replace this by 
@@ -957,7 +1087,6 @@ var if_warmup = 1;
         
         },200); // creating a gap between the screens  
 
-        
     }
     
     
@@ -1058,65 +1187,41 @@ var if_warmup = 1;
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         
-        
-        var Title = '<div id = "Title"><H2 align = "center"> You finished the experiment. </H2>\n\
-        <H2 align = "center"> Please dont close this page and call the experimenter </H2></div>';
-        
-        CreateDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').html(Title);
-        
-        // go to a page to show all the data 
-        
-        
-        $("body").on("keydown", function(e) {
-            var k = e.keyCode; // get the key code of what was pressed             
-            
-            // the one the left chosen 
-            if (k === 81){
-                $("body").off("keydown");
-                if (if_warmup===1) {
-                  Step_ShowQuestions();
-                } else { 
-                  Step_ShowData
-                } 
-            }                 
-            
-        });
 
           if (if_warmup===1) {
-            Step_ShowQuestions();
+            Instructions(34,Subject_ID); // slide 33 to show the moving to question phase
           } else { 
-            Step_ShowData
+            ques_ans = 0;
+            Step_ShowData();
           } 
     }
     
 
-    function Step_ShowQuestions() {
+function Step_ShowQuestions() {
     console.log("Step_ShowQuestions");
     $('#Stage').empty();
 
     var currentQuestion = questions[currentQuestionIndex];
 
     // Construct the question and answers HTML
-    var questionHtml = `<div id="questionDiv">
-        <h2 align="center">${currentQuestion.text}</h2>`;
+    var questionHtml = `<div id="questionDiv" style="text-align:left; max-width: 600px; margin: auto;">
+        <h2 style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">${currentQuestion.text}</h2>`; // Left-aligned
 
     currentQuestion.answers.forEach(function(answer) {
         questionHtml += `
-            <div class="answer">
-                <input type="radio" id="${answer.id}" name="answer" value="${answer.text}">
-                <label for="${answer.id}">${answer.text}</label>
+            <div class="answer" style="margin: 10px 0; display: flex; align-items: center;">
+                <input type="radio" id="${answer.id}" name="answer" value="${answer.text}" style="transform: scale(1.5); margin-right: 10px;">
+                <label for="${answer.id}" style="font-size: 24px; cursor: pointer;">${answer.text}</label>
             </div>`;
     });
 
-    questionHtml += `<button class="submit-button" id="submit-button">Submit</button></div>`;
+    questionHtml += `<button class="submit-button" id="submit-button" style="font-size: 22px; padding: 10px 20px; margin-top: 20px;">Submit</button></div>`; 
 
     CreateDiv('Stage', 'QuestionBoxDiv');
     $('#QuestionBoxDiv').html(questionHtml);
 
     // Attach event listener for submit button click
-    $('#submit-button').on('click', submitAnswer)
-  
+    $('#submit-button').on('click', submitAnswer);
 }
 
 // Function to handle answer submission
@@ -1141,13 +1246,12 @@ var if_warmup = 1;
             Step_ShowQuestions();
         } else {
             // All questions are answered
-            alert('You have completed all the questions.');
+            //alert('You have completed all the questions.');
             Step_ShowData(ques_ans)
   
         }
     }
 }
-
 
     // stuff to be saved are here
     
@@ -1164,11 +1268,13 @@ var if_warmup = 1;
     
     // Check the responses against the true answers
     var allCorrect = true;
+    if (if_warmup==1) {
     for (let i = 0; i < ques_ans.length; i++) {
         if (ques_ans[i] !== trueResponses[i]) {
             allCorrect = false;
             break;
         }
+    }
     }
 
     
@@ -1186,17 +1292,12 @@ var if_warmup = 1;
         Missed3: missed3,
         QuesAns: ques_ans,
         ReadyToMain: allCorrect,
-        PercRew: perc_rew
+        PercRew: perc_rew,
+        Ifwarmup: if_warmup,
+        Prolific_ID: Prolific_ID,
+        Timestamp: new Date().toISOString() // Save current date and time in ISO format
+
     };
-
-
-    // Show message based on correctness of answers
-    var message;
-    if (allCorrect) {
-        message = '<H2 align="center">All responses are correct. <br> Now you can enter the main experiment.</H2>';
-    } else {
-        message = '<H2 align="center">You could not response to all questions correctly. <br> We need to say good bye to you and thank you for your participation.</H2>';
-    }
 
     // Display the message and the output data
     var outputHtml = `${message}<p>ID           = [${outputData.ID}];<br>
@@ -1211,44 +1312,92 @@ var if_warmup = 1;
                                     Missed3     = [${outputData.Missed3}];<br>
                                     QuesAns     = [${outputData.QuesAns}];<br>
                                     ReadyToMain = [${outputData.ReadyToMain}];<br>
-                                    PercRew     = [${outputData.PercRew}]</p>`;
-                                    
-    // Sajjad: here you can eaither put outputHtml or message alone                                 
-
-  //  CreateDiv('Stage', 'TextBoxDiv');
-  //  $('#TextBoxDiv').html(outputHtml);
+                                    PercRew     = [${outputData.PercRew}];<br>
+                                    Timestamp   = [${outputData.Timestamp}]</p>`;
     
-        CreateDiv('Stage', 'TextBoxDiv');
-    $('#TextBoxDiv').html(message);
-    
-        downloadResponses(outputData)
+//  saving in firestore
 
+    // Get current date and time
+    const now = new Date();
+    const date = now.toLocaleDateString('en-GB').replace(/\//g, '_'); // e.g., "16-09-2024"
+    const time = now.toLocaleTimeString('en-GB').replace(/:/g, '_');  // e.g., "14-45-30"
+    
+    // Combine participant ID, date, and time
+    const customID = `${outputData.ID}_${date}_${time}`;  // e.g., "0001_16-09-2024_14-45-30"
+    
+    // Reference to the Firestore collection
+    const experimentCollection = db.collection("experiment_data");
+
+
+for (const [key, value] of Object.entries(outputData)) {
+    if (value === undefined) {
+        console.warn(`⚠️ Undefined value detected: ${key}`);
     }
-
-// Function to handle response download
-    function downloadResponses(data) {
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    var downloadAnchorNode = document.createElement('a');
-    var filename = `responses_${data.ID}.json`; // Use ID in the filename
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", filename);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    check_if_warmup(data.ReadyToMain);
+}
+    // Add a new document with the custom ID
+    experimentCollection.doc(customID).set(outputData)
+        .then(() => {
+            console.log("Document written with custom ID: ", customID);
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+        
+      
+// Show message based on correctness of answers
+    var message;
+    var finsihed = false;
+  if (if_warmup==1){
+    if (allCorrect) {
+        message =  '<H2 align="center">All responses are correct.</H2> \n\
+        <H3 align = "center"> Please read the instruction before starting the main experiment. </H3>';
+    } else {
+        message = '<H2 align="center">You could not answer to all questions correctly. <br> We need to say goodbye to you and thank you for your participation! </H2>\n\
+        <H3 align = "center"> You will be compensated for your time and effort.</H3> \n\
+        <H4 align = "center">  You will be automatically redirected to Prolific after 10 seconds,, where you will receive your completion code.</H4>' ;
+        finsihed = true;
+    }
+  } else {
+  if (!distConfirmed) {
+        message =  '<H2 align="center">Well Done!</H2> \n\
+        <H3 align = "center"> You have successfully completed the experiment. Thank you for your participation! You will be compensated for your time, with an additional bonus based on your performance.</H3>\n\
+       <H4 align = "center"> You will be automatically redirected to Prolific after 10 seconds, where you will receive your completion code. </H4>';
+        finsihed = true;
+  }else{
+        message = '<H2 align = "center"> You can not continue the experiment, </H2> \n\
+        <H3 align = "center"> becuase you missed a lot of trials. Thank you for your participation! </H3> \n\
+        <H4 align = "center"> You will be compensated for your time, with an additional bonus based on your performance.</H3>\n\
+        <H5 align = "center">  You will be automatically redirected to Prolific after 10 seconds,, where you will receive your completion code.</H5></di>'
+        finsihed = true;
+  }
 }
 
-    function check_if_warmup(ReadyToMain) {
-    if (if_warmup===1 && ReadyToMain){
-        Instruct = false;
-          ////////////////////////////////////////////////////////////////////////////
-        var NumTrials = 5; // cant be more then 365
-          ////////////////////////////////////////////////////////////////////////////
-        if_warmup=0;
-        go_to_main()
+CreateDiv('Stage', 'TextBoxDiv');
+$('#TextBoxDiv').html(message);
+
+// Delay the next block by 10 seconds (10,000 milliseconds)
+setTimeout(function () {
+    if (!finsihed && allCorrect) {
+        if_warmup = 0;
+        go_to_main();
+    } else {
+        clearTimeouts(); // Stop all pending timeouts if necessary
+
+        localStorage.setItem("lastCompletedSubject", Subject_ID); // record the sub num
+
+        console.log(Subject_ID);
+
+        // Redirect to Prolific
+        window.location.href = "https://app.prolific.com/submissions/complete?cc=CZU8JSCA";
     }
+}, 10000); // 10,000 ms = 10 seconds
+
+      
     }
     
+
+
+
     function go_to_main(){
 
       var Buttons = '<div align="center"><input align="center" type="button"  class="btn btn-default" id="Start" value="Start!" ></div>';
@@ -1266,6 +1415,14 @@ var if_warmup = 1;
   }
     // the end 
 
+
+// Helper function to clear all timeouts
+function clearTimeouts() {
+    let id = setTimeout(() => {}, 0);
+    while (id--) {
+        clearTimeout(id); // Will clear all timeouts up to the last registered id
+    }
+}
     //Utility Functions
     function CreateDiv(ParentID, ChildID) {
 
